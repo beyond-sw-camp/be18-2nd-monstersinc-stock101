@@ -4,12 +4,11 @@ import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CommunityService {
-    long save(PostRequestDto dto);                         // 생성
+    long save(PostRequestDto dto);
 
-    PostResponseDto getAPost(long postId);             // 생성 직후/목록용
+    PostResponseDto getAPost(long postId);
 
     PostResponseDto getPostDetail(long postId);
 
@@ -17,8 +16,7 @@ public interface CommunityService {
 
     void delete(long postId);
 
-   void likePost(long postId, long userId);
+    void likePost(long postId, long userId);
 
     void unlikePost(long postId, long userId);
-
 }

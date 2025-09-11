@@ -49,7 +49,7 @@ public class CommunityController {
     // 종목 별 게시물 리스트 조회
     @GetMapping("/posts")
     public ResponseEntity<ItemsResponseDto<PostResponseDto>> list(
-            @RequestParam long stockId)        {
+            @RequestParam long stockId) {
 
         List<PostResponseDto> items = communityService.getPostListByStock(stockId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));

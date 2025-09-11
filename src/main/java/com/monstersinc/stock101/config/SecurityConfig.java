@@ -17,13 +17,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, LogbackMetrics logbackMetrics) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth-> auth
+<<<<<<< HEAD
                         .requestMatchers("/api/v1/**").permitAll()
 
                         // 4) 뉴스 조회, 클릭카운트 업데이트는 공개
@@ -34,6 +34,7 @@ public class SecurityConfig {
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout-> logout.disable());
 
         return http.build();
