@@ -29,8 +29,7 @@
             resultMap="postResultMap">
         <include refid="selectPostSql" />
         <where>
-            stock_id = #{stockId}
-            AND is_deleted = 0
+            stock_id = #{stockId} AND is_deleted = 0
         </where>
         ORDER BY created_at DESC
     </select>
@@ -40,7 +39,7 @@
             resultMap="postResultMap">
         <include refid="selectPostSql" />
           <where>
-            post_id = #{postId}
+            post_id = #{postId} AND is_deleted = 0
           </where>
     </select>
 
@@ -54,5 +53,22 @@
                      #{opinion}, #{content}, #{stockId}, #{userId}
                  )
     </insert>
+
+    <update id="softDeletePost" parameterType="long">
+        UPDATE posts
+        SET is_deleted = 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO user_likes (post_id, user_id)
+        VALUES (#{postId}, #{userId})
+    </insert>
+
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM user_likes
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </delete>
 
 </mapper>

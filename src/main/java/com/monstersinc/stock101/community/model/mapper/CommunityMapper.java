@@ -5,13 +5,20 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface CommunityMapper {
-    void insertPost(Post post); // XML에서 insertPost는 꼭 useGeneratedKeys="true" keyProperty="postId" 설정!
+    void insertPost(Post post);
 
     Post selectPostById(@Param("postId") long postId);
 
     List<Post> selectPostsByStockId(@Param("stockId") long stockId);
+
+    void softDeletePost(@Param("postId") long postId);
+
+    void insertLike(Map<String, Long> postId);
+
+    void deleteLike(Map<String, Long> postId);
 }
 

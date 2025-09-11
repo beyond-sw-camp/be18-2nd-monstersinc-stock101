@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -46,4 +47,22 @@ public class CommunityServiceImpl implements CommunityService {
         List<Post> rows = communityMapper.selectPostsByStockId(stockId);
         return PostResponseDto.of(rows);
     }
+
+    @Override
+    @Transactional
+    public void delete(long postId) {
+        communityMapper.softDeletePost(postId);
+    }
+
+    @Override
+    public void likePost(long postId, long userId) {
+        communityMapper.insertLike(Map.of("postId", postId, "userId", userId));
+    }
+
+    @Override
+    public void unlikePost(long postId, long userId) {
+        communityMapper.deleteLike(Map.of("postId", postId, "userId", userId));
+    }
+
+
 }
