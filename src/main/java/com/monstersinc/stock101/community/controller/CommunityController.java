@@ -82,4 +82,9 @@ public class CommunityController {
         communityService.unlikePost(postId, userId);
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 취소되었습니다."));
     }
+
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments() {
+
+    }
 }
