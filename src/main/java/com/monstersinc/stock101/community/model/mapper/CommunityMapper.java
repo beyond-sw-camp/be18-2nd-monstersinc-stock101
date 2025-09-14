@@ -1,5 +1,6 @@
 package com.monstersinc.stock101.community.model.mapper;
 
+import com.monstersinc.stock101.community.model.vo.Comment;
 import com.monstersinc.stock101.community.model.vo.Post;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -20,5 +21,11 @@ public interface CommunityMapper {
     void insertLike(Map<String, Long> postId);
 
     void deleteLike(Map<String, Long> postId);
+
+    List<Comment> selectCommentListByPost(@Param("postId") long postId);
+
+    void insertComment(Comment comment);
+
+    Comment selectCommentById(@Param("commentId") long commentId);
 }
 

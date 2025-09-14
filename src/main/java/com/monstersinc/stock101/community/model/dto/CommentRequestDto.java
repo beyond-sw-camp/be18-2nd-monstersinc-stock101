@@ -15,17 +15,21 @@ import lombok.Setter;
 @Builder
 public class CommentRequestDto {
     @NotNull
-    private long userId;
+    private String content;
 
     @NotNull
-    private String content;
+    private long postId;
+
+    @NotNull
+    private long userId;
 
     private long parentCommentId;
 
     public Comment toComment() {
         return Comment.builder()
-                .userId(userId)
                 .content(content)
+                .postId(postId)
+                .userId(userId)
                 .parentCommentId(parentCommentId)
                 .build();
     }

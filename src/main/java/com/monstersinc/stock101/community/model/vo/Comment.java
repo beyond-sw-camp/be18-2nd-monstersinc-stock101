@@ -19,8 +19,9 @@ public class Comment {
     private long parentCommentId;
 
     public void setComment(@Valid CommentRequestDto requestDto){
-        this.userId = requestDto.getUserId();
         this.content = requestDto.getContent();
+        this.postId = requestDto.getPostId();
+        this.userId = requestDto.getUserId();
         this.parentCommentId = requestDto.getParentCommentId();
     }
 }

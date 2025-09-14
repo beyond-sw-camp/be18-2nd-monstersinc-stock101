@@ -1,12 +1,15 @@
 package com.monstersinc.stock101.community.model.service;
 
+import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
+import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
 public interface CommunityService {
-    long save(PostRequestDto dto);
+    long saveAPost(PostRequestDto dto);
 
     PostResponseDto getAPost(long postId);
 
@@ -19,4 +22,10 @@ public interface CommunityService {
     void likePost(long postId, long userId);
 
     void unlikePost(long postId, long userId);
+
+    List<CommentResponseDto> getCommentListByPost(long postId);
+
+    long saveAComment(CommentRequestDto requestDto);
+
+    CommentResponseDto getAComment(long commentId);
 }

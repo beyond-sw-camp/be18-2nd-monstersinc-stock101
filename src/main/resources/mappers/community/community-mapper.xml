@@ -14,6 +14,18 @@
         FROM posts
     </sql>
 
+    <sql id="selectCommentSql">
+        SELECT
+            comment_id,
+            content,
+            created_at,
+            is_deleted,
+            post_id,
+            user_id,
+            parent_comment_id
+        FROM comments
+    </sql>
+
     <resultMap id="postResultMap" type="Post">
         <id     property="postId"   column="post_id" />
         <result property="opinion"  column="opinion" />
@@ -24,6 +36,17 @@
         <result property="stockId"  column="stock_id" />
         <result property="userId"   column="user_id" />
     </resultMap>
+
+    <resultMap id="commentResultMap" type="Comment">
+        <id property="commentId" column="comment_id"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+    </resultMap>
+
 
     <select id="selectPostsByStockId"
             resultMap="postResultMap">
@@ -38,9 +61,9 @@
             parameterType="long"
             resultMap="postResultMap">
         <include refid="selectPostSql" />
-          <where>
+        <where>
             post_id = #{postId} AND is_deleted = 0
-          </where>
+        </where>
     </select>
 
     <insert id="insertPost"
@@ -71,4 +94,40 @@
           AND user_id = #{userId}
     </delete>
 
+    <select id="selectCommentListByPost" parameterType="long" resultMap="commentResultMap">
+        <include refid="selectCommentSql"/>
+        WHERE post_id = #{postId}
+        ORDER BY
+        CASE WHEN parent_comment_id IS NULL THEN comment_id ELSE parent_comment_id END,
+        created_at ASC
+    </select>
+
+    <select id="selectPostsByStockId"
+            resultMap="postResultMap">
+        <include refid="selectPostSql" />
+        <where>
+            stock_id = #{stockId} AND is_deleted = 0
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insertComment"
+            parameterType="Comment"
+            useGeneratedKeys="true"
+            keyProperty="commentId">
+        INSERT INTO comments (
+            content, user_id, post_id, parent_comment_id
+        ) VALUES (
+                     #{content}, #{userId}, #{postId}, #{parentCommentId}
+                 )
+    </insert>
+
+    <select id="selectCommentById"
+            parameterType="long"
+            resultMap="comemntResultMap">
+        <include refid="selectCommentSql" />
+        <where>
+            comment_id = #{commentId} AND is_deleted = 0
+        </where>
+    </select>
 </mapper>
