@@ -2,6 +2,8 @@ package com.monstersinc.stock101.community.controller;
 
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
+import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
+import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import com.monstersinc.stock101.community.model.service.CommunityService;
@@ -32,7 +34,7 @@ public class CommunityController {
     public ResponseEntity<BaseResponseDto<PostResponseDto>> create(
             @Valid @RequestBody PostRequestDto requestDto) {
 
-        long newId = communityService.save(requestDto);
+        long newId = communityService.saveAPost(requestDto);
         PostResponseDto body = communityService.getAPost(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -55,6 +57,7 @@ public class CommunityController {
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
+    // 게시물 삭제
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<BaseResponseDto<String>> delete(@PathVariable long postId) {
         PostResponseDto post = communityService.getAPost(postId);
@@ -64,7 +67,7 @@ public class CommunityController {
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시글이 삭제되었습니다."));
     }
 
-    // 인증 없이 사용
+    // 좋아요 등록
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<BaseResponseDto<String>> like(
             @PathVariable long postId,
@@ -74,6 +77,7 @@ public class CommunityController {
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 반영되었습니다."));
     }
 
+    // 좋아요 취소
     @DeleteMapping("/posts/{postId}/like")
     public ResponseEntity<BaseResponseDto<String>> dislike(
             @PathVariable long postId,
@@ -83,8 +87,24 @@ public class CommunityController {
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 취소되었습니다."));
     }
 
+    // 게시물 댓글 조회
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments() {
+    public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments(
+            @PathVariable long postId) {
 
+        List<CommentResponseDto> items = communityService.getCommentListByPost(postId);
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
+    }
+
+    // 댓글 등록
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<BaseResponseDto<CommentResponseDto>> create(
+            @Valid @RequestBody CommentRequestDto requestDto) {
+
+        long newId = communityService.saveAComment(requestDto);
+        CommentResponseDto body = communityService.getAComment(newId);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
     }
 }

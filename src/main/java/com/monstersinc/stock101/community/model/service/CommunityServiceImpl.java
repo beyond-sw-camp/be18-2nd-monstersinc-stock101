@@ -1,8 +1,11 @@
 package com.monstersinc.stock101.community.model.service;
 
+import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
+import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import com.monstersinc.stock101.community.model.mapper.CommunityMapper;
+import com.monstersinc.stock101.community.model.vo.Comment;
 import com.monstersinc.stock101.community.model.vo.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,7 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public long save(PostRequestDto dto) {
+    public long saveAPost(PostRequestDto dto) {
         Post post = dto.toPost();
         communityMapper.insertPost(post);
         return post.getPostId();
@@ -62,6 +65,28 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void unlikePost(long postId, long userId) {
         communityMapper.deleteLike(Map.of("postId", postId, "userId", userId));
+    }
+
+    @Override
+    public List<CommentResponseDto> getCommentListByPost(long postId) {
+        List<Comment> rows = communityMapper.selectCommentListByPost(postId);
+        return CommentResponseDto.of(rows);
+    }
+
+    @Override
+    public long saveAComment(CommentRequestDto requestDto) {
+        Comment comment = requestDto.toComment();
+        communityMapper.insertComment(comment);
+        return comment.getCommentId();
+    }
+
+    @Override
+    public CommentResponseDto getAComment(long commentId) {
+        Comment comment = communityMapper.selectCommentById(commentId);
+        if (comment == null) {
+            throw new IllegalArgumentException("Comment not found: " + commentId);
+        }
+        return CommentResponseDto.of(comment);
     }
 
 
