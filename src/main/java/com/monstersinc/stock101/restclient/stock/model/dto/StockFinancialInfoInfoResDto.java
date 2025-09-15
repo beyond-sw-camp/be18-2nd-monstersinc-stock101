@@ -9,9 +9,12 @@ import lombok.Setter;
 
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class StockInfoResDto {
+
+public class StockFinancialInfoInfoResDto {
     private String ticker;
+    private long stockId;
     private String timeframe;
+    private int quarter;
     private String periodEnd;
     private Double roe;
     private Double roa;

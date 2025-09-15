@@ -1,10 +1,11 @@
 package com.monstersinc.stock101.community.model.mapper;
 
-import com.monstersinc.stock101.community.model.vo.Post;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.monstersinc.stock101.community.model.vo.Post;
 
 @Mapper
 public interface CommunityMapper {
