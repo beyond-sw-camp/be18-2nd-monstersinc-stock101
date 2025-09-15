@@ -18,18 +18,18 @@ public class CommentRequestDto {
     private String content;
 
     @NotNull
-    private long postId;
-
-    @NotNull
     private long userId;
 
-    private long parentCommentId;
+    @NotNull
+    private long postId;
+
+    private Long parentCommentId;
 
     public Comment toComment() {
         return Comment.builder()
                 .content(content)
-                .postId(postId)
                 .userId(userId)
+                .postId(postId)
                 .parentCommentId(parentCommentId)
                 .build();
     }

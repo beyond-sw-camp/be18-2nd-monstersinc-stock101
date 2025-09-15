@@ -21,7 +21,7 @@ public class CommentResponseDto {
     private boolean isDeleted;
     private long postId;
     private long userId;
-    private long parentCommentId;
+    private Long parentCommentId;
 
     public static CommentResponseDto of(Comment c) {
         return CommentResponseDto.builder()

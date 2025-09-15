@@ -16,12 +16,5 @@ public class Comment {
     private boolean isDeleted;
     private long postId;
     private long userId;
-    private long parentCommentId;
-
-    public void setComment(@Valid CommentRequestDto requestDto){
-        this.content = requestDto.getContent();
-        this.postId = requestDto.getPostId();
-        this.userId = requestDto.getUserId();
-        this.parentCommentId = requestDto.getParentCommentId();
-    }
+    private Long parentCommentId;
 }

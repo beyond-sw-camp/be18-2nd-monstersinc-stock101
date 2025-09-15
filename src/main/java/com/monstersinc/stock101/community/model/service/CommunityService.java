@@ -4,7 +4,6 @@ import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
 import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -28,4 +27,6 @@ public interface CommunityService {
     long saveAComment(CommentRequestDto requestDto);
 
     CommentResponseDto getAComment(long commentId);
+
+    void deleteComment(long commentId);
 }

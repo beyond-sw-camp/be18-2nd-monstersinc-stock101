@@ -96,38 +96,43 @@
 
     <select id="selectCommentListByPost" parameterType="long" resultMap="commentResultMap">
         <include refid="selectCommentSql"/>
-        WHERE post_id = #{postId}
+        WHERE post_id = #{postId} AND is_deleted = 0
         ORDER BY
-        CASE WHEN parent_comment_id IS NULL THEN comment_id ELSE parent_comment_id END,
-        created_at ASC
+            CASE WHEN parent_comment_id IS NULL THEN comment_id ELSE parent_comment_id END ASC, -- 스레드 묶음
+            CASE WHEN parent_comment_id IS NULL THEN 0 ELSE 1 END ASC,                          -- 부모 우선
+            created_at ASC                                                                       -- 자식은 시간순
     </select>
 
-    <select id="selectPostsByStockId"
-            resultMap="postResultMap">
-        <include refid="selectPostSql" />
-        <where>
-            stock_id = #{stockId} AND is_deleted = 0
-        </where>
-        ORDER BY created_at DESC
-    </select>
-
-    <insert id="insertComment"
-            parameterType="Comment"
-            useGeneratedKeys="true"
-            keyProperty="commentId">
-        INSERT INTO comments (
-            content, user_id, post_id, parent_comment_id
-        ) VALUES (
-                     #{content}, #{userId}, #{postId}, #{parentCommentId}
-                 )
+    <insert id="insertComment" parameterType="Comment" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO comments
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            content,
+            user_id,
+            post_id,
+            <if test="parentCommentId != null">parent_comment_id,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{content},
+            #{userId},
+            #{postId},
+            <if test="parentCommentId != null">#{parentCommentId},</if>
+        </trim>
     </insert>
+
 
     <select id="selectCommentById"
             parameterType="long"
-            resultMap="comemntResultMap">
+            resultMap="commentResultMap">
         <include refid="selectCommentSql" />
         <where>
             comment_id = #{commentId} AND is_deleted = 0
         </where>
     </select>
+
+    <update id="softDeleteComment" parameterType="long">
+        UPDATE comments
+        SET is_deleted = 1
+        WHERE comment_id = #{commentId} OR parent_comment_id = #{commentId}
+    </update>
+
 </mapper>
