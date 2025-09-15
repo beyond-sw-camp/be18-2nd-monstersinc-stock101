@@ -5,7 +5,6 @@ import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
 import com.monstersinc.stock101.user.model.vo.User;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -68,6 +67,19 @@ public class UserController {
         User updateUserInfo = userService.updateUserInfo(userId,userRequestDto);
 
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, updateUserInfo));
+
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<BaseResponseDto<User>> deleteMe(@AuthenticationPrincipal User principal) {
+
+        Long userId = principal.getUserId();
+
+        userService.softDeleteUser(userId);
+
+        return ResponseEntity
+                .noContent()
+                .build();
 
     }
 

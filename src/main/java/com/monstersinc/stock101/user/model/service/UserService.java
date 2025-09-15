@@ -16,4 +16,5 @@ public interface UserService {
 
     boolean checkEmailExists(String email);
 
+    void softDeleteUser(Long userId);
 }

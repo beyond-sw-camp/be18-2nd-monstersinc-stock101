@@ -51,9 +51,11 @@
         SET
             email = #{email},
             user_name = #{name},
-            password = #{password}
+            password = #{password},
+            deleted_at = #{deletedAt}
         WHERE
             user_id = #{userId}
     </update>
+
 
 </mapper>

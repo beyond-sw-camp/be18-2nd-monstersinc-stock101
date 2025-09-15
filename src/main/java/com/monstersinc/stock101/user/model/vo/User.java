@@ -35,6 +35,8 @@ public class User implements UserDetails {
 
     private LocalDateTime lastLoginAt;
 
+    private LocalDateTime deletedAt;
+
     private String tierCode;
 
     @Override

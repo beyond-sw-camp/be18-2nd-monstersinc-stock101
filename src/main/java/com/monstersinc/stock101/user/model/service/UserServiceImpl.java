@@ -9,6 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
 @Service
@@ -80,6 +82,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean checkEmailExists(String email) {
         return userMapper.existsByEmail(email);
+    }
+
+
+    @Transactional
+    @Override
+    public void softDeleteUser(Long userId) {
+        User user = getUserByUserId(userId);
+        user.setDeletedAt(LocalDateTime.now());
+
+        userMapper.updateUser(user);
     }
 
 }
