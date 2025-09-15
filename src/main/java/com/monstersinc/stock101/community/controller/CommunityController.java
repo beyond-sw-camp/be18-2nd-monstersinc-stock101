@@ -99,12 +99,24 @@ public class CommunityController {
     // 댓글 등록
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<BaseResponseDto<CommentResponseDto>> create(
+            @PathVariable long postId,
             @Valid @RequestBody CommentRequestDto requestDto) {
 
+        requestDto.setPostId(postId);
         long newId = communityService.saveAComment(requestDto);
         CommentResponseDto body = communityService.getAComment(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<BaseResponseDto<String>> deleteComment(
+            @PathVariable long commentId) {
+
+        communityService.deleteComment(commentId);
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시물이 삭제되었습니다."));
     }
 }

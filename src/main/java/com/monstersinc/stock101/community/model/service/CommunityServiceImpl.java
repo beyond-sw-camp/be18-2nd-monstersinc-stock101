@@ -89,5 +89,10 @@ public class CommunityServiceImpl implements CommunityService {
         return CommentResponseDto.of(comment);
     }
 
+    @Override
+    public void deleteComment(long commentId) {
+        communityMapper.softDeleteComment(commentId);
+    }
+
 
 }

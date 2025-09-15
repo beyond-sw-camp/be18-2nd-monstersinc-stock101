@@ -27,5 +27,7 @@ public interface CommunityMapper {
     void insertComment(Comment comment);
 
     Comment selectCommentById(@Param("commentId") long commentId);
+
+    void softDeleteComment(@Param("commentId") long commentId);
 }
 
