@@ -50,7 +50,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                     String ticker = getStockCodeDto.getStockCode();
             RestTemplateBuilder builder = new RestTemplateBuilder();
             RestTemplate restTemplate = builder.build();
-            
+
             LocalDate date = LocalDate.now().minusDays(1);
 
             // 주말이면 금요일로 보정
@@ -81,6 +81,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             
             StockPriceDto.setId(id);
             StockPriceDto.setFluctuation(fluctuation);
+            StockPriceDto.setPK(ticker+"_"+searchDate); // PK 설정
             // mapper는 인스턴스(stockRestClientMapper)에서 호출해야 합니다.
             stockRestClientMapper.updateStockInfo(StockPriceDto); //stocks 테이블 업데이트
             stockRestClientMapper.insertStockPrice(StockPriceDto); //stock_prices 테이블에 가격 이력 추가

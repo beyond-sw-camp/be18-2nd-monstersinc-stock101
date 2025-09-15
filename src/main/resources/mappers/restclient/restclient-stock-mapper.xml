@@ -37,8 +37,8 @@
     </select>
     <!-- stock_prices 테이블에 가격 이력 추가 -->
     <insert id="insertStockPrice" parameterType="com.monstersinc.stock101.restclient.stock.model.dto.StockPriceDto">
-        INSERT INTO stock_prices (stock_id, closing_price, date)
-        VALUES (#{id}, #{close}, #{from})
+        INSERT INTO stock_prices (stock_id, closing_price, date, stock_price_pk)
+        VALUES (#{id}, #{close}, #{from}, #{PK})
     </insert>
 
     <!-- stocks 테이블 업데이트 -->

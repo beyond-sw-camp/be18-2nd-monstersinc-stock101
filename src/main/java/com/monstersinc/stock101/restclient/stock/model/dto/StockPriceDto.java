@@ -14,4 +14,5 @@ public class StockPriceDto {
     private double fluctuation;
     private String symbol;
     private double close;
+    private String PK;
 }
