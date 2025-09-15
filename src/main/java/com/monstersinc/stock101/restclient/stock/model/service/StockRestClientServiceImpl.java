@@ -77,7 +77,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
             double lastClosePrice = stockRestClientMapper.getStockPriceById(id);
 
-            double fluctuation = Math.round((StockPriceDto.getClose() - (lastClosePrice == 0 ? 0 : lastClosePrice))*1000)/1000.0;
+            double fluctuation = decimal_round(StockPriceDto.getClose() - (lastClosePrice == 0 ? 0 : lastClosePrice));
             
             StockPriceDto.setId(id);
             StockPriceDto.setFluctuation(fluctuation);
@@ -150,10 +150,10 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                     .timeframe(timeframe)
                     .periodEnd(r0.getEndDate())
                     .quarter(qt)
-                    .roe(roe)
-                    .roa(roa)
-                    .eps(Double.isFinite(epsBasic) ? epsBasic : null)
-                    .bps(bps)
+                    .roe(decimal_round(roe))
+                    .roa(decimal_round(roa))
+                    .eps(decimal_round(Double.isFinite(epsBasic) ? epsBasic : null))
+                    .bps(decimal_round(bps))
                     .build();
                 if (!stockRestClientMapper.existsFinance(id)) {
                     stockRestClientMapper.insertFinance(stockInfoResDtoLocal);
@@ -176,5 +176,8 @@ public class StockRestClientServiceImpl implements StockRestClientService {
     }
     private double nz(Double val) {
         return (val == null) ? 0.0 : val;
-    }   
+    }
+    private double decimal_round(double val) {
+        return val = Math.round(val*1000)/1000.0;
+    }
 }       
