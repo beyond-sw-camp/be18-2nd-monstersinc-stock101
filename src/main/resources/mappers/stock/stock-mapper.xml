@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.monstersinc.stock101.stock.model.mapper.StockMapper">
+    <!-- 공통 SELECT SQL -->
+    <sql id="selectStockSql">
+        SELECT
+            s.stock_id,
+            s.name,
+            s.individual_indicator,
+            s.analyst_indicator,
+            s.news_indicator,
+            s.price,
+            s.fluctuation,
+            s.industry_code,
+            ind.name as industry_name,
+            s.sector_code,
+            sec.name as sector_name
+        FROM stocks s
+        INNER JOIN sectors sec ON s.sector_code = sec.sector_code
+        INNER JOIN industries ind ON s.industry_code = ind.industry_code
+    </sql>
 
+    <!-- ResultMap 매핑 -->
+    <resultMap id="stockResultMap" type="Stock">
+        <id property="stockId" column="stock_id"/>
+        <result property="name" column="name"/>
+        <result property="individualIndicator" column="individual_indicator"/>
+        <result property="analystIndicator" column="analyst_indicator"/>
+        <result property="newsIndicator" column="news_indicator"/>
+        <result property="price" column="price"/>
+        <result property="fluctuation" column="fluctuation"/>
+        <result property="industryCode" column="industry_code"/>
+        <result property="industryName" column="industry_name"/>
+        <result property="sectorCode" column="sector_code"/>
+        <result property="sectorName" column="sector_name"/>
+    </resultMap>
+
+    <!-- 전체 조회 -->
+    <select id="selectStockList" resultMap="stockResultMap">
+        <include refid="selectStockSql"/>
+    </select>
+
+    <!-- 단일 조회 -->
+    <select id="selectStockById" parameterType="long" resultMap="stockResultMap">
+        <include refid="selectStockSql"/>
+        WHERE s.stock_id = #{stockId}
+    </select>
 </mapper>
