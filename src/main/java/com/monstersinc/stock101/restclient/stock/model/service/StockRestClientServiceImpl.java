@@ -42,7 +42,20 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
     // }
     @Override
-    public String getStockprices() {
+    public String getnews(){
+        try{
+            RestTemplateBuilder builder = new RestTemplateBuilder();
+            RestTemplate restTemplate = builder.build();
+            String url = "https://api.polygon.io/v2/reference/news?limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
+            String body = restTemplate.getForObject(url, String.class);
+            System.out.println(body);
+            return body;
+        }catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+    }
+    @Override
+    public String getStockprices() { 
         try{
             List<GetStockCodeDto> allStockCodes = getAllStockCodes();
             for(GetStockCodeDto getStockCodeDto : allStockCodes) {
@@ -51,7 +64,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             RestTemplateBuilder builder = new RestTemplateBuilder();
             RestTemplate restTemplate = builder.build();
 
-            LocalDate date = LocalDate.now().minusDays(1);
+            LocalDate date = LocalDate.now().minusDays(2);
 
             // 주말이면 금요일로 보정
             if (date.getDayOfWeek() == DayOfWeek.SATURDAY) {

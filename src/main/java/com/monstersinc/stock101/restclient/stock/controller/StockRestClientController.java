@@ -27,4 +27,9 @@ public class StockRestClientController {
     public String getFinancialInfo() {
         return stockRestClientService.getFinancialInfo("annual");
     }
+    @GetMapping("rest-client/getNews")
+    public String getNews() {
+        return "news";
+    }
+
 }

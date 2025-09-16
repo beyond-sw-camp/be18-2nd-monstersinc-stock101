@@ -15,4 +15,3 @@ public interface CommunityMapper {
 
     List<Post> selectPostsByStockId(@Param("stockId") long stockId);
 }
-
