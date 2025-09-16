@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.monstersinc.stock101.restclient.stock.model.NewsPolygonResponse;
 import com.monstersinc.stock101.restclient.stock.model.PolygonResponse;
+import com.monstersinc.stock101.restclient.stock.model.dto.GetNewsDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetStockCodeDto;
-import com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoInfoResDto;
+import com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoResDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockPriceDto;
 import com.monstersinc.stock101.restclient.stock.model.mapper.StockRestClientMapper;
 
@@ -28,7 +30,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
     private final ObjectMapper objectMapper;
 
-    private StockFinancialInfoInfoResDto stockInfoResDto;
+    private StockFinancialInfoResDto stockInfoResDto;
 
     private final RestTemplate restTemplate;
     private final StockRestClientMapper stockRestClientMapper;
@@ -44,16 +46,56 @@ public class StockRestClientServiceImpl implements StockRestClientService {
     @Override
     public String getnews(){
         try{
-            RestTemplateBuilder builder = new RestTemplateBuilder();
-            RestTemplate restTemplate = builder.build();
-            String url = "https://api.polygon.io/v2/reference/news?limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
-            String body = restTemplate.getForObject(url, String.class);
-            System.out.println(body);
-            return body;
+            List<GetStockCodeDto> allStockCodes = getAllStockCodes();
+            for(GetStockCodeDto getStockCodeDto : allStockCodes) {
+                    String ticker = getStockCodeDto.getStockCode();
+            String url = "https://api.polygon.io/v2/reference/news?ticker="+ticker+"limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
+             NewsPolygonResponse np = restTemplate.getForObject(url, NewsPolygonResponse.class);
+
+            if(np == null || np.getResults() == null || np.getResults().isEmpty()) {
+                System.out.println("No news data for ticker: "+ticker);
+                break;
+            }
+
+            //newsPolygonResponse을 가공 후 dto로 변환
+            for(int i=0; i<np.getResults().size(); i++){
+            List<String> Tickers = np.getResults().get(i).getTickers();
+             // 뉴스 데이터가 없을 경우 처리
+            if(!Tickers.getFirst().equals(ticker)) {
+                System.out.println("No news data for ticker: "+ticker);
+                continue;
+            }
+            GetNewsDto getNewsDto = GetNewsDto.builder()
+            .newsId(np.getResults().get(i).getId())   
+            .title(np.getResults().get(i).getTitle())
+            .contentSummary(np.getResults().get(i).getDescription())
+            .articleUrl(np.getResults().get(i).getArticleUrl())
+            .publishedAt(np.getResults().get(i).getPublishedUtc())
+            .build();
+             // 뉴스 데이터가 없을 경우 처리    
+            if(getNewsDto == null) {
+                System.out.println("No news data for ticker: "+ticker);
+                break;
+            }
+            //중복 뉴스 방지
+            if(stockRestClientMapper.existsNews(getNewsDto.getNewsId())) {
+                System.out.println("News already exists for ticker: "+ticker);
+                continue;
+            }
+            // mapper는 인스턴스(stockRestClientMapper)에서 호출해야 합니다.
+            stockRestClientMapper.insertNews(getNewsDto);
+            System.out.println("News updated for ticker: "+ticker);
+            Thread.sleep(15000); // 15초 대기
+            }
+            return "News updated successfully.";
+            }
         }catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        return "News updated successfully.";
     }
+
+    //주식 가격 가져오기
     @Override
     public String getStockprices() { 
         try{
@@ -98,7 +140,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             // mapper는 인스턴스(stockRestClientMapper)에서 호출해야 합니다.
             stockRestClientMapper.updateStockInfo(StockPriceDto); //stocks 테이블 업데이트
             stockRestClientMapper.insertStockPrice(StockPriceDto); //stock_prices 테이블에 가격 이력 추가
-            System.out.println(StockPriceDto.getClass()+" updated."+" ticker: "+ticker);
+            System.out.println("Get Stock Price (ticker: "+ticker+")");
 
             Thread.sleep(15000); // polygon.io free 정책 분당 5회 제한으로 인한 15초 대기
             }
@@ -157,7 +199,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                 Double roa = (avgAssets == 0) ? null : netIncome / avgAssets;
                 Double bps = (shares == 0) ? null : eq0 / shares;
                 
-                StockFinancialInfoInfoResDto stockInfoResDtoLocal = StockFinancialInfoInfoResDto.builder()
+                StockFinancialInfoResDto stockInfoResDtoLocal = StockFinancialInfoResDto.builder()
                     .ticker(ticker)
                     .stockId(id)
                     .timeframe(timeframe)
@@ -174,7 +216,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                     stockRestClientMapper.updateFinance(stockInfoResDtoLocal);
                 }
                 this.stockInfoResDto = stockInfoResDtoLocal;
-                System.out.println(stockInfoResDtoLocal.getClass()+" updated."+" ticker: "+ticker);
+                System.out.println("Get Stock Finance (ticker: "+ticker+")");
                 Thread.sleep(15000); // polygon.io free 정책 분당 5회 제한으로 인한 15초 대기
                 }
             }

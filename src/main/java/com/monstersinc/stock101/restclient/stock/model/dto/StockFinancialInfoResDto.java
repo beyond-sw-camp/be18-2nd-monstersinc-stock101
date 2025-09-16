@@ -9,8 +9,7 @@ import lombok.Setter;
 
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
-
-public class StockFinancialInfoInfoResDto {
+public class StockFinancialInfoResDto {
     private String ticker;
     private long stockId;
     private String timeframe;
