@@ -117,6 +117,6 @@ public class CommunityController {
 
         communityService.deleteComment(commentId);
 
-        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시물이 삭제되었습니다."));
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "댓글이 삭제되었습니다."));
     }
 }
