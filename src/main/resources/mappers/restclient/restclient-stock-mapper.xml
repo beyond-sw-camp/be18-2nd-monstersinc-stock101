@@ -20,7 +20,7 @@
         VALUES (#{eps},#{bps},#{roe},#{roa},#{quarter},#{stockId})
     </insert>
 
-     UPDATE: interface에서 호출하는 id(updateFinance)로 변경
+    <!-- UPDATE: interface에서 호출하는 id(updateFinance)로 변경 -->
     <update id="updateFinance" parameterType="com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoInfoResDto">
         UPDATE financial_indicators
         SET EPS = #{eps},
