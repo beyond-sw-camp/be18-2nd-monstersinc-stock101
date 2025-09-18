@@ -29,4 +29,6 @@ public interface CommunityService {
     CommentResponseDto getAComment(long commentId);
 
     void deleteComment(long commentId);
+
+    List<PostResponseDto> getPostListByUserId(Long userId);
 }

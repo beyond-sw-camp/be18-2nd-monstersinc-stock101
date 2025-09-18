@@ -94,5 +94,10 @@ public class CommunityServiceImpl implements CommunityService {
         communityMapper.softDeleteComment(commentId);
     }
 
+    @Override
+    public List<PostResponseDto> getPostListByUserId(Long userId) {
+        List<Post> rows = communityMapper.selectPostByUserId(userId);
+        return PostResponseDto.of(rows);
+    }
 
 }

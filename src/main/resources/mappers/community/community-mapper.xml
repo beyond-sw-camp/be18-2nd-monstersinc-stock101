@@ -135,4 +135,13 @@
         WHERE comment_id = #{commentId}
     </update>
 
+    <select id="selectPostByUserId"
+            parameterType="long"
+            resultMap="postResultMap">
+        <include refid="selectPostSql" />
+        <where>
+            user_id = #{userId}
+        </where>
+    </select>
+
 </mapper>

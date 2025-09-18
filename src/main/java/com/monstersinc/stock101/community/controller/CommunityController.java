@@ -7,10 +7,12 @@ import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import com.monstersinc.stock101.community.model.service.CommunityService;
+import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -118,5 +120,22 @@ public class CommunityController {
         communityService.deleteComment(commentId);
 
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "댓글이 삭제되었습니다."));
+    }
+
+    // 특정 유저가 작성한 게시물 조회
+    @GetMapping("/user/{user-id}")
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> getPostByUserId(@PathVariable("user-id") long userId) {
+
+        List<PostResponseDto> items = communityService.getPostListByUserId(userId);
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
+    }
+
+    // 내가 작성한 게시물 조회
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> getMyPosts(@AuthenticationPrincipal User authenticationUser) {
+
+        List<PostResponseDto> items = communityService.getPostListByUserId(authenticationUser.getUserId());
+
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 }
