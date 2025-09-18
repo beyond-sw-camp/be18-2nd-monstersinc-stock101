@@ -11,9 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor @NoArgsConstructor
 public class StockFinancialInfoResDto {
     private String ticker;
-    private long stockId;
+    private Long stockId;
     private String timeframe;
-    private int quarter;
+    private Integer quarter;
     private String periodEnd;
     private Double roe;
     private Double roa;

@@ -1,5 +1,7 @@
 package com.monstersinc.stock101.restclient.stock.model.service;
+import java.sql.Timestamp;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -43,51 +45,91 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
 
     // }
+    //뉴스 가져오기
     @Override
     public String getnews(){
         try{
             List<GetStockCodeDto> allStockCodes = getAllStockCodes();
             for(GetStockCodeDto getStockCodeDto : allStockCodes) {
                     String ticker = getStockCodeDto.getStockCode();
-            String url = "https://api.polygon.io/v2/reference/news?ticker="+ticker+"limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
-             NewsPolygonResponse np = restTemplate.getForObject(url, NewsPolygonResponse.class);
+            LocalDate date = LocalDate.now().minusDays(2);
 
-            if(np == null || np.getResults() == null || np.getResults().isEmpty()) {
-                System.out.println("No news data for ticker: "+ticker);
-                break;
+            // 주말이면 금요일로 보정
+            if (date.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                date = date.minusDays(1);
+            } else if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                date = date.minusDays(2);
             }
+
+            String searchDate = date.toString(); // yyyy-MM-dd
+
+            String url = "https://api.polygon.io/v2/reference/news?ticker=" + ticker + "&published_utc=" + searchDate + "&limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
+            // get raw body first to help debugging mapping issues
+            String newsBody = restTemplate.getForObject(url, String.class);
+            System.out.println("News raw body length for " + ticker + ": " + (newsBody == null ? 0 : newsBody.length()));
+            NewsPolygonResponse np = null;
+            try {
+                if (newsBody != null) {
+                    np = objectMapper.readValue(newsBody, NewsPolygonResponse.class);
+                }
+            } catch (Exception ex) {
+                System.out.println("Failed to parse news JSON for ticker: " + ticker + " -> " + ex.getMessage());
+                // skip this ticker on parse errors
+                Thread.sleep(15000);
+                continue;
+            }
+
+            if (np == null || np.getResults() == null || np.getResults().isEmpty()) {
+                System.out.println("No news response for ticker: " + ticker + " on or after " + searchDate);
+                Thread.sleep(15000);
+                continue;
+            }
+
+            System.out.println("Searching news for ticker: " + ticker + " on or after " + searchDate + " size: " + np.getResults().size());
 
             //newsPolygonResponse을 가공 후 dto로 변환
-            for(int i=0; i<np.getResults().size(); i++){
-            List<String> Tickers = np.getResults().get(i).getTickers();
-             // 뉴스 데이터가 없을 경우 처리
-            if(!Tickers.getFirst().equals(ticker)) {
-                System.out.println("No news data for ticker: "+ticker);
-                continue;
+            for (NewsPolygonResponse.Result result : np.getResults()) {
+                try {
+                    List<String> tickers = result.getTickers();
+                    if (tickers == null || tickers.isEmpty() || !tickers.contains(ticker)) {
+                        System.out.println("No news data for ticker: " + ticker);
+                        continue;
+                    };
+                    // 감정 분석
+                    // enum 'NEGATIVE','NEUTRAL','POSITIVE'
+                    String insight = result.getInsights() == null ? "NEUTRAL" :
+                    result.getInsights().stream()
+                    .filter(isght -> isght.getTicker().equals(ticker))
+                    .map(isght -> isght.getSentiment().toUpperCase())
+                    .findFirst()
+                    .orElse("NEUTRAL");
+
+                    GetNewsDto getNewsDto = GetNewsDto.builder()
+                            .newsId(result.getId())
+                            .title(result.getTitle())
+                            .contentSummary(result.getDescription())
+                            .articleUrl(result.getArticleUrl())
+                            .publishedAt(Timestamp.from(Instant.parse(result.getPublishedUtc())))
+                            .ticker(ticker)
+                            .result(insight)
+                            .stockId(getStockCodeDto.getStockId())
+                            .build();
+                            
+                    //중복 뉴스 방지
+                    if (stockRestClientMapper.existsNews(getNewsDto.getNewsId())) {
+                        System.out.println("News already exists for ticker: " + ticker + ", newsId: " + getNewsDto.getNewsId());
+                        continue;
+                    }
+
+                    stockRestClientMapper.insertNews(getNewsDto);
+                    System.out.println("News updated for ticker: " + ticker + ", newsId: " + getNewsDto.getNewsId());
+                } catch (Exception ex) {
+                    System.out.println("Error processing news result for ticker: " + ticker + " -> " + ex.getMessage());
+                    // continue to next result
+                }
             }
-            GetNewsDto getNewsDto = GetNewsDto.builder()
-            .newsId(np.getResults().get(i).getId())   
-            .title(np.getResults().get(i).getTitle())
-            .contentSummary(np.getResults().get(i).getDescription())
-            .articleUrl(np.getResults().get(i).getArticleUrl())
-            .publishedAt(np.getResults().get(i).getPublishedUtc())
-            .build();
-             // 뉴스 데이터가 없을 경우 처리    
-            if(getNewsDto == null) {
-                System.out.println("No news data for ticker: "+ticker);
-                break;
-            }
-            //중복 뉴스 방지
-            if(stockRestClientMapper.existsNews(getNewsDto.getNewsId())) {
-                System.out.println("News already exists for ticker: "+ticker);
-                continue;
-            }
-            // mapper는 인스턴스(stockRestClientMapper)에서 호출해야 합니다.
-            stockRestClientMapper.insertNews(getNewsDto);
-            System.out.println("News updated for ticker: "+ticker);
             Thread.sleep(15000); // 15초 대기
-            }
-            return "News updated successfully.";
+            System.out.println("Get News (ticker: " + ticker + ")");
             }
         }catch (Exception e) {
                 throw new RuntimeException(e);
@@ -126,7 +168,8 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             String body = restTemplate.getForObject(url, String.class);
             if(body == null || body.contains("\"status\":\"NOT_FOUND\"")) {
                 System.out.println("No price data for ticker: "+ticker);
-                break;
+                // skip this ticker and continue with next one
+                continue;
             }
             StockPriceDto StockPriceDto = objectMapper.readValue(body, StockPriceDto.class);
 
@@ -166,8 +209,10 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                     + "&timeframe=" + timeframe 
                     + "&limit=4"
                     + "&apikey=" + stockKey;
-
+                // debug: print the financials URL and response body to help diagnose mapping issues
+                System.out.println("Financials URL: " + url);
                 String body = restTemplate.getForObject(url, String.class);
+                System.out.println("Financials response length: " + (body == null ? 0 : body.length()));
                 PolygonResponse pr = objectMapper.readValue(body, PolygonResponse.class);
 
                 if (!(pr.getResults() == null || pr.getResults().size() < 2)) {
@@ -232,7 +277,8 @@ public class StockRestClientServiceImpl implements StockRestClientService {
     private double nz(Double val) {
         return (val == null) ? 0.0 : val;
     }
-    private double decimal_round(double val) {
-        return val = Math.round(val*1000)/1000.0;
+    private Double decimal_round(Double val) {
+        if (val == null) return null;
+        return Math.round(val * 1000) / 1000.0;
     }
 }       
