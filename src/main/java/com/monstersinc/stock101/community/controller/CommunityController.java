@@ -2,14 +2,18 @@ package com.monstersinc.stock101.community.controller;
 
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
+import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
+import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import com.monstersinc.stock101.community.model.service.CommunityService;
+import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +36,7 @@ public class CommunityController {
     public ResponseEntity<BaseResponseDto<PostResponseDto>> create(
             @Valid @RequestBody PostRequestDto requestDto) {
 
-        long newId = communityService.save(requestDto);
+        long newId = communityService.saveAPost(requestDto);
         PostResponseDto body = communityService.getAPost(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,6 +56,86 @@ public class CommunityController {
             @RequestParam long stockId) {
 
         List<PostResponseDto> items = communityService.getPostListByStock(stockId);
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
+    }
+
+    // 게시물 삭제
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<BaseResponseDto<String>> delete(@PathVariable long postId) {
+        PostResponseDto post = communityService.getAPost(postId);
+
+        communityService.delete(post.getPostId());
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시글이 삭제되었습니다."));
+    }
+
+    // 좋아요 등록
+    @PostMapping("/posts/{postId}/like")
+    public ResponseEntity<BaseResponseDto<String>> like(
+            @PathVariable long postId,
+            @RequestParam long userId) {
+
+        communityService.likePost(postId, userId);
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 반영되었습니다."));
+    }
+
+    // 좋아요 취소
+    @DeleteMapping("/posts/{postId}/like")
+    public ResponseEntity<BaseResponseDto<String>> dislike(
+            @PathVariable long postId,
+            @RequestParam long userId) {
+
+        communityService.unlikePost(postId, userId);
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 취소되었습니다."));
+    }
+
+    // 게시물 댓글 조회
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments(
+            @PathVariable long postId) {
+
+        List<CommentResponseDto> items = communityService.getCommentListByPost(postId);
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
+    }
+
+    // 댓글 등록
+    @PostMapping("/posts/{postId}/comments")
+    public ResponseEntity<BaseResponseDto<CommentResponseDto>> create(
+            @PathVariable long postId,
+            @Valid @RequestBody CommentRequestDto requestDto) {
+
+        requestDto.setPostId(postId);
+        long newId = communityService.saveAComment(requestDto);
+        CommentResponseDto body = communityService.getAComment(newId);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<BaseResponseDto<String>> deleteComment(
+            @PathVariable long commentId) {
+
+        communityService.deleteComment(commentId);
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "댓글이 삭제되었습니다."));
+    }
+
+    // 특정 유저가 작성한 게시물 조회
+    @GetMapping("/user/{user-id}")
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> getPostByUserId(@PathVariable("user-id") long userId) {
+
+        List<PostResponseDto> items = communityService.getPostListByUserId(userId);
+        return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
+    }
+
+    // 내가 작성한 게시물 조회
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> getMyPosts(@AuthenticationPrincipal User authenticationUser) {
+
+        List<PostResponseDto> items = communityService.getPostListByUserId(authenticationUser.getUserId());
+
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 }
