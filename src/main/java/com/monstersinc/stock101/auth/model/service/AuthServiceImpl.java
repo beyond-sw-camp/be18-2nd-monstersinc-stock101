@@ -4,6 +4,7 @@ import com.monstersinc.stock101.auth.jwt.JwtTokenProvider;
 import com.monstersinc.stock101.auth.jwt.JwtUtil;
 import com.monstersinc.stock101.auth.model.dto.LoginResponse;
 import com.monstersinc.stock101.auth.model.mapper.AuthMapper;
+import com.monstersinc.stock101.common.model.vo.CommonConstants;
 import com.monstersinc.stock101.user.model.vo.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,13 +12,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
 
     private final AuthMapper authMapper;
     private final JwtTokenProvider jwtTokenProvider;
@@ -28,10 +34,30 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(String email, String password) {
 
+        // 로그인시 회원 탈퇴 요청 한지 2주 이내 계정이면 탈퇴 취소한다.
+
+        // 탈퇴 요청 한지 2주 지난 계정이라면 유효계정인지 확인한다.
         User user = authMapper.selectUserByEmail(email);
 
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("아이디가 없거나 비밀번호가 잘못됐습니다.");
+        }
+
+        LocalDateTime requestedAt = user.getDeletedAt();
+        //회원 탈퇴 요청자라면
+        if(requestedAt !=null){
+            LocalDateTime  now =  LocalDateTime.now();
+            long daysBetween = ChronoUnit.DAYS.between(requestedAt,now);
+
+            // 2주 안된 계정.
+            if(daysBetween< CommonConstants.USER_DELETION_EXPIRE_DAYS ){
+                // 현재 user 객체의 상태도 업데이트 (이후 로직을 위해)
+                user.setDeletedAt(null);
+                authMapper.cancelDeleteUser(user.getUserId());
+
+            }else{// 2주 지난계정.
+                throw new RuntimeException("아이디가 없거나 비밀번호가 잘못됐습니다.");
+            }
         }
 
         return createLoginResponse(user);

@@ -1,5 +1,6 @@
 package com.monstersinc.stock101.user.model.service;
 
+import com.monstersinc.stock101.common.model.vo.CommonConstants;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.mapper.UserMapper;
@@ -10,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 
 @Service
@@ -23,9 +26,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public User registerUser(UserRegisterRequestDto userRegisterRequestDto) {
 
-        if (this.checkEmailExists(userRegisterRequestDto.getEmail())) {
+        // 유저가 있는지
+        User getUser = this.getUserByEmail(userRegisterRequestDto.getEmail());
+
+        // 유저없고
+        // 삭제 예정일이 없고
+        // 2주 지난 계정이 아니면 넘어간다.
+        // 그외에는 다 이미 가입된 이메일이다.
+        if (getUser != null  && getUser.getDeletedAt() != null) {
+                LocalDateTime now = LocalDateTime.now();
+                long daysBetween = ChronoUnit.DAYS.between(getUser.getDeletedAt(), now);
+
+                // 2주 지난 계정
+                if (daysBetween > CommonConstants.USER_DELETION_EXPIRE_DAYS) {
+                    throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+                }
+
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
+
 
         String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.getPassword());
 
@@ -54,11 +73,11 @@ public class UserServiceImpl implements UserService {
         }
 
         String encodedPassword = null;
-        if(userUpdateRequestDto.hasPassword()){
+        if (userUpdateRequestDto.hasPassword()) {
             encodedPassword = passwordEncoder.encode(userUpdateRequestDto.getPassword());
         }
 
-        user.update(userUpdateRequestDto,encodedPassword);
+        user.update(userUpdateRequestDto, encodedPassword);
 
         userMapper.updateUser(user);
         return user;

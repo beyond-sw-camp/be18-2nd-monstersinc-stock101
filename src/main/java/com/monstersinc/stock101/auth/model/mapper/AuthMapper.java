@@ -9,4 +9,6 @@ public interface AuthMapper {
     User selectUserByEmail(@Param("email") String email);
 
     User selectUserByUserId(@Param("userId") Long userId);
+
+    void cancelDeleteUser(@Param("userId") Long userId);
 }
