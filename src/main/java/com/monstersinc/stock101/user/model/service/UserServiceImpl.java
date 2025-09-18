@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 
@@ -26,31 +27,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public User registerUser(UserRegisterRequestDto userRegisterRequestDto) {
 
-        // 유저가 있는지
         User getUser = this.getUserByEmail(userRegisterRequestDto.getEmail());
 
-        // 유저없고
-        // 삭제 예정일이 없고
-        // 2주 지난 계정이 아니면 넘어간다.
-        // 그외에는 다 이미 가입된 이메일이다.
-        if (getUser != null  && getUser.getDeletedAt() != null) {
-                LocalDateTime now = LocalDateTime.now();
-                long daysBetween = ChronoUnit.DAYS.between(getUser.getDeletedAt(), now);
+        if (getUser != null) {
+            if (getUser.getDeletedAt() == null ||
+                    ChronoUnit.DAYS.between(getUser.getDeletedAt(), LocalDateTime.now()) < CommonConstants.USER_DELETION_EXPIRE_DAYS) {
 
-                // 2주 지난 계정
-                if (daysBetween > CommonConstants.USER_DELETION_EXPIRE_DAYS) {
-                    throw new IllegalArgumentException("이미 가입된 이메일입니다.");
-                }
+                // 2주가 지나지 않은 계정 또는 활성 계정 -> 에러
+                throw new IllegalArgumentException("이미 사용중인 계정입니다.");
+            }
 
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            String markedEmail = getUser.getEmail() + "_DEL_" + getUser.getDeletedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+            userMapper.updateEmail(getUser.getUserId(), markedEmail);
+
         }
-
 
         String encodedPassword = passwordEncoder.encode(userRegisterRequestDto.getPassword());
 
         User user = User.builder()
                 .password(encodedPassword)
-                .email(userRegisterRequestDto.getEmail())
+                .email(userRegisterRequestDto.getEmail()) // 새 레코드에는 원래 이메일 등록
                 .name(userRegisterRequestDto.getName())
                 .build();
 

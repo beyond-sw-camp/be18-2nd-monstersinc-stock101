@@ -3,6 +3,7 @@ package com.monstersinc.stock101.user.model.mapper;
 import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Optional;
 
@@ -24,4 +25,5 @@ public interface UserMapper {
     boolean existsByUserId(Long userId);
 
     void updateUser(User user);
-}
+
+    void updateEmail(@Param("userId")Long userId, @Param("email")String markedEmail);}

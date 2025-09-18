@@ -8,6 +8,7 @@
         <result property="name" column="user_name"/>
         <result property="password" column="password"/>
         <result property="createdAt" column="created_at"/>
+        <result property="deletedAt" column="deleted_at"/>
         <result property="lastLoginAt" column="last_login_at"/>
     </resultMap>
 
@@ -22,7 +23,8 @@
                email,
                password,
                created_at,
-               last_login_at
+               last_login_at,
+               deleted_at
         FROM users u
         WHERE email = #{email};
     </select>
@@ -33,7 +35,8 @@
                email,
                password,
                created_at,
-               last_login_at
+               last_login_at,
+               deleted_at
         FROM users u
         WHERE u.user_id = #{userId}
     </select>
@@ -56,6 +59,17 @@
         WHERE
             user_id = #{userId}
     </update>
+
+
+    <update id="updateEmail">
+        UPDATE users
+        SET
+            email = #{email}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+
 
 
 </mapper>
