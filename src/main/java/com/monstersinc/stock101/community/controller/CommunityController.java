@@ -34,9 +34,11 @@ public class CommunityController {
     // 게시물 등록 (로그인 필요)
     @PostMapping("/posts")
     public ResponseEntity<BaseResponseDto<PostResponseDto>> create(
+            @AuthenticationPrincipal User authenticationUser,
             @Valid @RequestBody PostRequestDto requestDto) {
 
-        long newId = communityService.saveAPost(requestDto);
+        long userId = authenticationUser.getUserId();
+        long newId = communityService.saveAPost(userId, requestDto);
         PostResponseDto body = communityService.getAPost(newId);
 
         return ResponseEntity.status(HttpStatus.CREATED)

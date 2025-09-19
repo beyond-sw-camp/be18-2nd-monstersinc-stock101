@@ -10,7 +10,7 @@ import java.util.Map;
 
 @Mapper
 public interface CommunityMapper {
-    void insertPost(Post post);
+    void insertPost(@Param("userId") long userId, @Param("post") Post post);
 
     Post selectPostById(@Param("postId") long postId);
 

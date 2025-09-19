@@ -8,7 +8,7 @@ import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import java.util.List;
 
 public interface CommunityService {
-    long saveAPost(PostRequestDto dto);
+    long saveAPost(long userId, PostRequestDto dto);
 
     PostResponseDto getAPost(long postId);
 

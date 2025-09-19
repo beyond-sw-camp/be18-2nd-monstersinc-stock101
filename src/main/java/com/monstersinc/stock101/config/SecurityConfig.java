@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.config;
 
 import com.monstersinc.stock101.auth.jwt.JwtAuthenticationFilter;
+import com.monstersinc.stock101.exception.handler.CustomAuthenticationEntryPoint;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,8 @@ public class SecurityConfig {
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout-> logout.disable());
 

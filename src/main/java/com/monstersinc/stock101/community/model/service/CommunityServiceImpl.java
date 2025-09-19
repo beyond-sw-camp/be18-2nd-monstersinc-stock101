@@ -21,9 +21,9 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     @Transactional
-    public long saveAPost(PostRequestDto dto) {
+    public long saveAPost(long userId, PostRequestDto dto) {
         Post post = dto.toPost();
-        communityMapper.insertPost(post);
+        communityMapper.insertPost(userId, post);
         return post.getPostId();
     }
 
