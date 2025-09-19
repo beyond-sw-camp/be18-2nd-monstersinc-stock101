@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.config;
 
 import com.monstersinc.stock101.auth.jwt.JwtAuthenticationFilter;
+import com.monstersinc.stock101.exception.handler.CustomAuthenticationEntryPoint;
 import io.micrometer.core.instrument.binder.logging.LogbackMetrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,16 +25,31 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth-> auth
+                        // 1) 로그인 관련
                         .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
+
+                        // 2) 사용자 정보 관련
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/me").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/me").authenticated()
 
                         // 2) 게시물 등록 회원만
-                        .requestMatchers(HttpMethod.POST, "/api/v1/bdmdoard/posts").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/board/posts").authenticated()
 
                         // 3) 조회는 공개
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/posts/**").permitAll()
+
+                        // 4) 뉴스 조회, 클릭카운트 업데이트는 공개
+                        .requestMatchers(HttpMethod.POST, "/api/v1/news/**").permitAll()
+
+                        // 5) 주식은 조회만 있으므로 공개
+                        .requestMatchers(HttpMethod.POST, "/api/v1/stock/**").permitAll()
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout-> logout.disable());
 

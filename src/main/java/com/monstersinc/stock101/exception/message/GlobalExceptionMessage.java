@@ -15,9 +15,7 @@ public enum GlobalExceptionMessage {
 
     UNAUTHORIZED_TOKEN("유효한 인증 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
 
-    UNAUTHORIZED_USER("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
-
-    INDICATOR_NOT_FOUND("지표 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    UNAUTHORIZED_USER("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
 
     private final String message;
 
