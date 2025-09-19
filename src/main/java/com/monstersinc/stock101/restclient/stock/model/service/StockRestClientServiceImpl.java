@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.monstersinc.stock101.restclient.stock.model.Insight;
 import com.monstersinc.stock101.restclient.stock.model.NewsPolygonResponse;
 import com.monstersinc.stock101.restclient.stock.model.PolygonResponse;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetNewsDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetStockCodeDto;
+import com.monstersinc.stock101.restclient.stock.model.dto.NewsIndicatorDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoResDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockPriceDto;
 import com.monstersinc.stock101.restclient.stock.model.mapper.StockRestClientMapper;
@@ -37,14 +39,6 @@ public class StockRestClientServiceImpl implements StockRestClientService {
     private final RestTemplate restTemplate;
     private final StockRestClientMapper stockRestClientMapper;
 
-    // @Override
-    // public Object getStockInfo(String stockCode) {
-    //     RestTemplateBuilder builder = new RestTemplateBuilder();
-    //     RestTemplate restTemplate = builder.build();
-    //     String url = "https://api.polygon.io/vX/last/stocks/" + stockCode + "?apikey=" + stockKey;
-
-
-    // }
     //뉴스 가져오기
     @Override
     public String getnews(){
@@ -64,7 +58,6 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             String searchDate = date.toString(); // yyyy-MM-dd
 
             String url = "https://api.polygon.io/v2/reference/news?ticker=" + ticker + "&published_utc=" + searchDate + "&limit=10&sort=published_utc&order=desc&apikey=" + stockKey;
-            // get raw body first to help debugging mapping issues
             String newsBody = restTemplate.getForObject(url, String.class);
             System.out.println("News raw body length for " + ticker + ": " + (newsBody == null ? 0 : newsBody.length()));
             NewsPolygonResponse np = null;
@@ -114,6 +107,27 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                             .result(insight)
                             .stockId(getStockCodeDto.getStockId())
                             .build();
+                    
+                    // news_indicatior
+
+                    List<Insight> indicatiorInsights = result.getInsights();
+
+                    for (Insight indicatiorInsight : indicatiorInsights) {
+                        GetStockCodeDto newsIndicatorStockIdDto = stockRestClientMapper.getStockIdByCode(indicatiorInsight.getTicker());
+                        if(newsIndicatorStockIdDto == null){
+                            continue;
+                        }
+                        NewsIndicatorDto newsIndicatorDto =  NewsIndicatorDto.builder()
+                        .result(indicatiorInsight.getSentiment())
+                        .date(Timestamp.from(Instant.parse(result.getPublishedUtc())))
+                        .ticker(indicatiorInsight.getTicker())
+                        .newsId(result.getId())
+                        .stockId(newsIndicatorStockIdDto.getStockId())
+                        .build();
+
+                        stockRestClientMapper.insertInsight(newsIndicatorDto);
+                        System.out.println("뉴스 인디케이터 추가중"+ indicatiorInsight.getTicker());
+                    }
                             
                     //중복 뉴스 방지
                     if (stockRestClientMapper.existsNews(getNewsDto.getNewsId())) {
@@ -123,6 +137,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
                     stockRestClientMapper.insertNews(getNewsDto);
                     System.out.println("News updated for ticker: " + ticker + ", newsId: " + getNewsDto.getNewsId());
+
                 } catch (Exception ex) {
                     System.out.println("Error processing news result for ticker: " + ticker + " -> " + ex.getMessage());
                     // continue to next result
@@ -273,6 +288,9 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
     public List<GetStockCodeDto> getAllStockCodes() {
         return stockRestClientMapper.getAllStockCodes();
+    }
+    public GetStockCodeDto getStockIdByCode(String ticker){
+        return stockRestClientMapper.getStockIdByCode(ticker);
     }
     private double nz(Double val) {
         return (val == null) ? 0.0 : val;

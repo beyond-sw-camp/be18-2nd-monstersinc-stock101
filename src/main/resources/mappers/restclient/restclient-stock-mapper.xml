@@ -7,6 +7,13 @@
                stock_code AS stockCode
         FROM stocks
     </select>
+    <!-- ticker로 조회: 인터페이스의 getStockIdByCode와 매핑되는 쿼리 -->
+    <select id="getStockIdByCode" resultType="com.monstersinc.stock101.restclient.stock.model.dto.GetStockCodeDto" parameterType="String">
+        SELECT stock_id AS stockId,
+               stock_code AS stockCode
+        FROM stocks
+        WHERE stock_code = #{ticker}
+    </select>
     <!-- 존재 여부 확인 -->
     <select id="existsFinance" resultType="boolean" parameterType="long">
         SELECT COUNT(1) > 0
@@ -30,7 +37,6 @@
             quarter = #{quarter}
         WHERE stock_id = #{stockId}
     </update>
-
     <select id="getStockPriceById" resultType="double" parameterType="long">
         SELECT price
         FROM stocks
@@ -60,5 +66,10 @@
         FROM news
         WHERE news_id = #{newsId}
     </select>
+
+    <insert id="insertInsight" parameterType="com.monstersinc.stock101.restclient.stock.model.dto.NewsIndicatorDto">
+        INSERT INTO news_indicators (result, date, stock_code, news_id, stock_id)
+        VALUES (#{result}, #{date}, #{ticker}, #{newsId}, #{stockId})
+    </insert>
 
 </mapper>
