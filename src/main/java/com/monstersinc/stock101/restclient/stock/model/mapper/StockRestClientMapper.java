@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.monstersinc.stock101.restclient.stock.model.dto.GetNewsDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetStockCodeDto;
+import com.monstersinc.stock101.restclient.stock.model.dto.NewsIndicatorDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoResDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockPriceDto;
 
@@ -20,4 +21,6 @@ public interface StockRestClientMapper {
     void insertStockPrice(StockPriceDto StockPriceDto);
     void insertNews(GetNewsDto getNewsDto);
     boolean existsNews(String newsId);
+    void insertInsight(NewsIndicatorDto newsIndicatorDto);
+    GetStockCodeDto getStockIdByCode(String ticker);
 }
