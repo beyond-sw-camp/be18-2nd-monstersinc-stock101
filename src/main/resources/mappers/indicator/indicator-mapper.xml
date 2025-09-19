@@ -82,16 +82,6 @@
     </select>
 
     <!-- Stock ID로 최신 뉴스 지표 조회-->
-<!--    <select id="selectNewsIndicatorByStockId"-->
-<!--            parameterType="long"-->
-<!--            resultMap="newsIndicatorResultMap">-->
-<!--        <include refid="selectNewsIndicatorSql" />-->
-<!--        <where>-->
-<!--            stock_id = #{stockId}-->
-<!--        </where>-->
-<!--        ORDER BY date DESC-->
-<!--        LIMIT 1-->
-<!--    </select>-->
 
     <resultMap id="newsIndicatorResultMap" type="NewsIndicator">
         <result property="stockId"       column="stock_id"/>
@@ -107,11 +97,12 @@
         SELECT
             stock_id,
             stock_code,
-            SUM(CASE WHEN `result` = 'NEGATIVE' THEN 1 ELSE 0 END) AS negative_count,
-            SUM(CASE WHEN `result` = 'NEUTRAL'  THEN 1 ELSE 0 END) AS neutral_count,
-            SUM(CASE WHEN `result` = 'POSITIVE' THEN 1 ELSE 0 END) AS positive_count
+            COALESCE(SUM(CASE WHEN `result` = 'NEGATIVE' THEN 1 ELSE 0 END), 0) AS negative_count,
+            COALESCE(SUM(CASE WHEN `result` = 'NEUTRAL'  THEN 1 ELSE 0 END), 0) AS neutral_count,
+            COALESCE(SUM(CASE WHEN `result` = 'POSITIVE' THEN 1 ELSE 0 END), 0) AS positive_count
         FROM news_indicators
         WHERE stock_id = #{stockId}
           AND `date` BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+        GROUP BY stock_id, stock_code
     </select>
 </mapper>
