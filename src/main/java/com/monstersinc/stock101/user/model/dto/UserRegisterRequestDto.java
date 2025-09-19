@@ -17,11 +17,11 @@ import java.util.List;
 public class UserRegisterRequestDto {
 
     @Email()
-    @NotBlank(message = "이름은 필수 입력 값입니다.")
-    private String name;
-
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     private String email;
+
+    @NotBlank(message = "이름은 필수 입력 값입니다.")
+    private String name;
 
     @NotBlank(message = "비밀번호는 필 수 입력 값입니다.")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{8,}$",

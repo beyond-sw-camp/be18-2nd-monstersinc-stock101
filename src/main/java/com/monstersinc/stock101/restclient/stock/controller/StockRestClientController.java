@@ -1,7 +1,6 @@
 package com.monstersinc.stock101.restclient.stock.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,17 +10,25 @@ import lombok.RequiredArgsConstructor;
 
 
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
 public class StockRestClientController {
 
     private final StockRestClientService stockRestClientService;
-
-    @GetMapping("rest-client/getstockinfo/{stockCode}")
-    public Object getStockInfo(@PathVariable("stockCode") String stockCode) {
-    stockRestClientService.getStockInfo(stockCode);
-        return null;
+    @GetMapping("rest-client/getStockPrice")
+    public String getStockPrice() {
+        return stockRestClientService.getStockprices();
     }
     
-}       
+
+    @GetMapping("rest-client/getFinancialInfo")
+    public String getFinancialInfo() {
+        return stockRestClientService.getFinancialInfo("annual");
+    }
+    @GetMapping("rest-client/getnews")
+    public String getNews() {
+        return stockRestClientService.getnews();
+}
+}

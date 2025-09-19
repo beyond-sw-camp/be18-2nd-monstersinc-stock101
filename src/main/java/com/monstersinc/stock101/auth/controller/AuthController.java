@@ -2,10 +2,11 @@ package com.monstersinc.stock101.auth.controller;
 
 import java.time.Duration;
 
+import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -30,7 +31,7 @@ public class AuthController {
     private final JwtCookieService jwtCookieService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<BaseResponseDto<LoginResponse>> login(
             @Valid @RequestBody LoginRequestDto loginRequestDto) {
 
         // login에 필요한 정보를 가져온다.
@@ -44,10 +45,7 @@ public class AuthController {
         ResponseCookie cookie = jwtCookieService.createRefreshTokenCookie(refreshToken, Duration.ofDays(1));
         HttpHeaders headers = jwtCookieService.createRefreshTokenCookieHeaders(cookie);
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(loginResponse);
+        return ResponseEntity.ok().headers(headers).body(new BaseResponseDto<>(HttpStatus.OK,loginResponse));
     }
 
     @PostMapping("/logout")
@@ -65,5 +63,4 @@ public class AuthController {
                 .build();
     }
 
-    // TODO : 자동 로그인 기능 구현. #18 #auth
 }

@@ -19,9 +19,6 @@ public class PostRequestDto {
     @NotNull
     private long stockId;
 
-    @NotNull
-    private long userId;
-
     @NotBlank
     @Size(max = 100)
     private String opinion;
@@ -32,7 +29,6 @@ public class PostRequestDto {
     public Post toPost() {
         return Post.builder()
                 .stockId(stockId)
-                .userId(userId)
                 .opinion(opinion)
                 .content(content)
                 .build();
