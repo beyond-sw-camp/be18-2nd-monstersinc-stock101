@@ -37,7 +37,6 @@ public class SecurityConfig {
                         // 2) 게시물, 좋아요 등록; 로그인 필요
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts/{postId}/like").authenticated()
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/board/posts").authenticated()
 
                         // 3) 조회는 공개
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/posts/**").permitAll()
