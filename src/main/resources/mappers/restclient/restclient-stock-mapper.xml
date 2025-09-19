@@ -30,6 +30,7 @@
             quarter = #{quarter}
         WHERE stock_id = #{stockId}
     </update>
+
     <select id="getStockPriceById" resultType="double" parameterType="long">
         SELECT price
         FROM stocks

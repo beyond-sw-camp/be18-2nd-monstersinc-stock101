@@ -2,15 +2,18 @@ package com.monstersinc.stock101.user.controller;
 
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
+import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
 import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.HTML;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -28,18 +31,57 @@ public class UserController {
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, registeredUser));
     }
 
-    //
-//    @GetMapping("/me")
-//    public ResponseEntity<> getMe(){
-//        return ResponseEntity.ok().build();
-//    }
-//
-//
-//    @PatchMapping("/me")
-//    public ResponseEntity<Void> updateMe(){
-//        return ResponseEntity.ok().build();
-//
-//    }
+
+    @GetMapping("/me")
+    public ResponseEntity<BaseResponseDto<User>> getMe(@AuthenticationPrincipal User authenticationUser) {
+        User user = userService.getUserByEmail(authenticationUser.getEmail());
+
+        // user 정보를 리턴한다.
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, user));
+    }
+
+    @GetMapping("/check-id")
+    public ResponseEntity<BaseResponseDto<Map<String, Object>>> getCheckId(@RequestParam @Valid String email) {
+
+        boolean isEmailExist = userService.checkEmailExists(email);
+
+        Map<String, Object> data = new HashMap<>();
+
+        if (isEmailExist) {
+            data.put("available", false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseDto<>(HttpStatus.BAD_REQUEST, data));
+        } else {
+            data.put("available", true);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(new BaseResponseDto<>(HttpStatus.OK, data));
+    }
+
+
+    @PatchMapping("/me")
+    public ResponseEntity<BaseResponseDto<User>> updateMe(
+            @AuthenticationPrincipal  User principal,
+            @RequestBody @Valid UserUpdateRequestDto userRequestDto) {
+
+        Long userId = principal.getUserId();
+        User updateUserInfo = userService.updateUserInfo(userId,userRequestDto);
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, updateUserInfo));
+
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<BaseResponseDto<User>> deleteMe(@AuthenticationPrincipal User principal) {
+
+        Long userId = principal.getUserId();
+
+        userService.softDeleteUser(userId);
+
+        return ResponseEntity
+                .noContent()
+                .build();
+
+    }
 
 
     // @TODO 2주뒤에 삭제 => 정보 삭제 취소하는 경우  => 스프링 스케줄링 기능 사용해야함. user-001
