@@ -12,9 +12,9 @@
         <result property="lastLoginAt" column="last_login_at"/>
         <result property="tierCode" column="tier_code"/>
         <result property="deletedAt" column="deleted_at"/>
-        <collection property="roles" ofType="string">
-            <result column="role_name"/>
-        </collection>
+        <result property="role" column="role"/>
+
+
     </resultMap>
 
     <select id="selectUserByEmail" parameterType="string" resultMap="userResultMap">
@@ -25,12 +25,10 @@
                created_at,
                last_login_at,
                tier_code,
-               r.role_name,
-               deleted_at
+               deleted_at,
+               role
 
         FROM users u
-                 LEFT JOIN  user_roles ur ON u.user_id =ur.user_id
-                 LEFT JOIN  roles r ON r.role_id =ur.user_id
 
         WHERE email = #{email};
     </select>
@@ -43,10 +41,8 @@
                created_at,
                last_login_at,
                tier_code,
-               r.role_name
+               role
         FROM users u
-                 LEFT JOIN  user_roles ur ON u.user_id =ur.user_id
-                 LEFT JOIN  roles r ON r.role_id =ur.user_id
         WHERE u.user_id = #{userId};
     </select>
     

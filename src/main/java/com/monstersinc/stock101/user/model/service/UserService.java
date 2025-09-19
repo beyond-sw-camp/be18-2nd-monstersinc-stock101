@@ -4,6 +4,7 @@ import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 
 public interface UserService {
     User registerUser(UserRegisterRequestDto userRegisterRequestDto);
