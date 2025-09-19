@@ -5,9 +5,10 @@ import com.monstersinc.stock101.auth.jwt.JwtUtil;
 import com.monstersinc.stock101.auth.model.dto.LoginResponse;
 import com.monstersinc.stock101.auth.model.mapper.AuthMapper;
 import com.monstersinc.stock101.common.model.vo.CommonConstants;
-import com.monstersinc.stock101.exception.AuthException;
-import com.monstersinc.stock101.exception.message.AuthExceptionMessage;
+import com.monstersinc.stock101.exception.GlobalException;
+import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.vo.User;
+import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         User user = authMapper.selectUserByEmail(email);
 
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new AuthException(AuthExceptionMessage.USER_NOT_FOUND);
+            throw new GlobalException(GlobalExceptionMessage.DUPCLICATE_EMAIL);
         }
 
         LocalDateTime requestedAt = user.getDeletedAt();
@@ -53,8 +54,8 @@ public class AuthServiceImpl implements AuthService {
                 user.setDeletedAt(null);
                 authMapper.cancelDeleteUser(user.getUserId());
 
-            }else{// 2주 지난 계정이라면 삭제한다.
-                throw new AuthException(AuthExceptionMessage.USER_NOT_FOUND);
+            }else{// 2주 지난 계정이라면 예외처리
+                throw new GlobalException(GlobalExceptionMessage.DUPCLICATE_EMAIL);
             }
         }
 

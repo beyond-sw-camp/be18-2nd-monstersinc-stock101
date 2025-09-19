@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum GlobalExceptionMessage {
 
+    DUPCLICATE_EMAIL("중복된 이메일 입니다.", HttpStatus.CONFLICT),
+
     EMAIL_NOT_FOUND("이메일 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     USER_NOT_FOUND("유저 정보를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
