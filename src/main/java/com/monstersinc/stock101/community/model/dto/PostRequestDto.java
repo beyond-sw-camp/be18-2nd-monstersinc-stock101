@@ -29,7 +29,6 @@ public class PostRequestDto {
     public Post toPost() {
         return Post.builder()
                 .stockId(stockId)
-//                .userId(userId)
                 .opinion(opinion)
                 .content(content)
                 .build();
