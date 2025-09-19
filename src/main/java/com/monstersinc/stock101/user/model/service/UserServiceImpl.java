@@ -1,6 +1,8 @@
 package com.monstersinc.stock101.user.model.service;
 
 import com.monstersinc.stock101.common.model.vo.CommonConstants;
+import com.monstersinc.stock101.exception.GlobalException;
+import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.mapper.UserMapper;
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserService {
                     ChronoUnit.DAYS.between(getUser.getDeletedAt(), LocalDateTime.now()) < CommonConstants.USER_DELETION_EXPIRE_DAYS) {
 
                 // 2주가 지나지 않은 계정 또는 활성 계정 -> 에러
-                throw new IllegalArgumentException("이미 사용중인 계정입니다.");
+                throw new GlobalException(GlobalExceptionMessage.DUPLICATE_EMAIL);
             }
 
             String markedEmail = getUser.getEmail() + "_DEL_" + getUser.getDeletedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
         // 변경 이메일 중복 체크
         if (userUpdateRequestDto.hasEmail() && !userUpdateRequestDto.getEmail().equalsIgnoreCase(user.getEmail())) {
             if (userMapper.existsByEmail(userUpdateRequestDto.getEmail())) {
-                throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+                throw new GlobalException(GlobalExceptionMessage.DUPLICATE_EMAIL);
             }
         }
 
@@ -84,14 +86,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByEmail(String email) {
         return userMapper.findByEmail(email).orElseThrow(() ->
-                new NoSuchElementException("사용자를 찾을 수 없습니다."));
+                new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     @Override
     public User getUserByUserId(Long userId) {
         return userMapper.findByUserId(userId).orElseThrow(() ->
-                new NoSuchElementException("사용자를 찾을 수 없습니다."));
+                new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
