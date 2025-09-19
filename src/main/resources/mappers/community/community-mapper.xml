@@ -67,14 +67,13 @@
     </select>
 
     <insert id="insertPost"
-            parameterType="Post"
             useGeneratedKeys="true"
-            keyProperty="postId">
+            keyProperty="post.postId">
         INSERT INTO posts (
-            opinion, content, stock_id, user_id
+        opinion, content, stock_id, user_id
         ) VALUES (
-                     #{opinion}, #{content}, #{stockId}, #{userId}
-                 )
+        #{post.opinion}, #{post.content}, #{post.stockId}, #{userId}
+        )
     </insert>
 
     <update id="softDeletePost" parameterType="long">
