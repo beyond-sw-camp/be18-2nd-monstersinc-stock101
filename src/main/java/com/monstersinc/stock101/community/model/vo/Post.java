@@ -16,7 +16,10 @@ public class Post {
     private String opinion;
     private String content;
     private String createdAt;
-    private boolean isDeleted;
     private long stockId;
     private Long userId;
+
+    private boolean likedByMe;
+    private int likeCount;
+    private int commentCount;
 }

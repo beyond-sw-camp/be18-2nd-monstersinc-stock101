@@ -31,10 +31,12 @@
         <result property="opinion"  column="opinion" />
         <result property="content"  column="content" />
         <result property="createdAt" column="created_at" />
-        <!-- boolean isDeleted -> 자바빈 프로퍼티명 'deleted' 로 매핑 -->
-        <result property="isDeleted"  column="is_deleted" />
         <result property="stockId"  column="stock_id" />
         <result property="userId"   column="user_id" />
+
+        <result property="likedByMe"   column="likedByMe"    />
+        <result property="likeCount"   column="likeCount"    />
+        <result property="commentCount" column="commentCount" />
     </resultMap>
 
     <resultMap id="commentResultMap" type="Comment">
@@ -47,7 +49,7 @@
         <result property="parentCommentId" column="parent_comment_id"/>
     </resultMap>
 
-
+<!--
     <select id="selectPostsByStockId"
             resultMap="postResultMap">
         <include refid="selectPostSql" />
@@ -56,6 +58,57 @@
         </where>
         ORDER BY created_at DESC
     </select>
+-->
+    <select id="selectPostsByStockId" resultMap="postResultMap">
+        SELECT
+        p.post_id,
+        p.opinion,
+        p.content,
+        p.user_id,
+        p.created_at,
+
+        <!-- 내가 좋아요 눌렀는지 -->
+        <choose>
+            <when test="userId != null">
+                CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS likedByMe,
+            </when>
+            <otherwise>
+                0 AS likedByMe,
+            </otherwise>
+        </choose>
+
+        -- 전체 좋아요 개수
+        COUNT(DISTINCT l_all.user_id) AS likeCount,
+
+        -- 전체 댓글 개수
+        COUNT(DISTINCT c.comment_id) AS commentCount
+
+        FROM posts p
+
+        <!-- 내가 좋아요 눌렀는지 여부 -->
+        <if test="userId != null">
+            LEFT JOIN user_likes l
+            ON l.post_id = p.post_id
+            AND l.user_id = #{userId}
+        </if>
+
+        <!-- 전체 좋아요 개수 -->
+        LEFT JOIN user_likes l_all
+        ON l_all.post_id = p.post_id
+
+        <!-- 전체 댓글 개수 -->
+        LEFT JOIN comments c
+        ON c.post_id = p.post_id AND c.is_deleted = 0
+
+        WHERE p.stock_id = #{stockId}
+        AND p.is_deleted = 0
+
+        GROUP BY p.post_id, p.opinion, p.content, p.user_id, p.created_at
+
+        ORDER BY p.created_at DESC
+    </select>
+
+
 
     <select id="selectPostById"
             parameterType="long"
@@ -81,6 +134,14 @@
         SET is_deleted = 1
         WHERE post_id = #{postId}
     </update>
+
+    <select id="isLiked" parameterType="map" resultType="_int">
+        SELECT COUNT(*)
+        FROM user_likes
+        <where>
+            post_id = #{postId} AND user_id = #{userId}
+        </where>
+    </select>
 
     <insert id="insertLike" parameterType="map">
         INSERT INTO user_likes (post_id, user_id)

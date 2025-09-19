@@ -7,6 +7,7 @@ import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import com.monstersinc.stock101.community.model.mapper.CommunityMapper;
 import com.monstersinc.stock101.community.model.vo.Comment;
 import com.monstersinc.stock101.community.model.vo.Post;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +47,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<PostResponseDto> getPostListByStock(long stockId) {
-        List<Post> rows = communityMapper.selectPostsByStockId(stockId);
+    public List<PostResponseDto> getPostListByStock(long stockId, @Nullable Long userId) {
+        List<Post> rows = communityMapper.selectPostsByStockId(stockId, userId);
         return PostResponseDto.of(rows);
     }
 
@@ -58,13 +59,17 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public void likePost(long postId, long userId) {
-        communityMapper.insertLike(Map.of("postId", postId, "userId", userId));
-    }
+    public int likePost(long postId, long userId) {
+        int result = communityMapper.isLiked(Map.of("postId", postId, "userId", userId));
 
-    @Override
-    public void unlikePost(long postId, long userId) {
-        communityMapper.deleteLike(Map.of("postId", postId, "userId", userId));
+        if  (result == 0){
+            communityMapper.insertLike(Map.of("postId", postId, "userId", userId));
+        }
+        else{
+            communityMapper.deleteLike(Map.of("postId", postId, "userId", userId));
+        }
+
+        return result;
     }
 
     @Override
