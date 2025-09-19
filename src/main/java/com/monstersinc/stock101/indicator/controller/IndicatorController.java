@@ -46,8 +46,8 @@ public class IndicatorController {
         return ResponseEntity.ok(new BaseResponseDto<AnalystIndicator>(HttpStatus.OK, indicator));
     }
 
-    // 전문가 지표 조회
-    // 전문가 지표 조회 시, stockId 기준 가장 최근 지표 조회.
+    // 뉴스 지표 조회
+    // 뉴스 지표 조회 시, stockId 기준 가장 최근 지표 조회.
     @GetMapping("/news-indicator" )
     public ResponseEntity<BaseResponseDto<NewsIndicator>> getNewsIndicator(@RequestParam long stockId) {
         NewsIndicator indicator = indicatorService.getNewsIndicator(stockId);
