@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/check-id")
     public ResponseEntity<BaseResponseDto<Map<String, Object>>> getCheckId(
             @NotBlank
-            @Email
+            @Email(message = "이메일은 user@example.com 형식이어야 합니다.")
             @RequestParam @Valid String email) {
 
         boolean isEmailExist = userService.checkEmailExists(email);
