@@ -6,6 +6,8 @@ import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
 import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,10 @@ public class UserController {
     }
 
     @GetMapping("/check-id")
-    public ResponseEntity<BaseResponseDto<Map<String, Object>>> getCheckId(@RequestParam @Valid String email) {
+    public ResponseEntity<BaseResponseDto<Map<String, Object>>> getCheckId(
+            @NotBlank
+            @Email
+            @RequestParam @Valid String email) {
 
         boolean isEmailExist = userService.checkEmailExists(email);
 
