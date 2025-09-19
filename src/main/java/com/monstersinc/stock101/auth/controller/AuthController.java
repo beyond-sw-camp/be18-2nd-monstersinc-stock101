@@ -63,5 +63,4 @@ public class AuthController {
                 .build();
     }
 
-    // TODO : 자동 로그인 기능 구현. #18 #auth
 }

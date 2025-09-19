@@ -5,6 +5,7 @@ import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.dto.ApiErrorResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,14 +15,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<ApiErrorResponseDto> handleException(GlobalException authException) {
+    public ResponseEntity<ApiErrorResponseDto> handleException(GlobalException globalException) {
 
-        log.error("authException: {} ", authException.getMessage());
+        log.error("GlobalException: {} ", globalException.getMessage());
 
         return new ResponseEntity<>(
-                new ApiErrorResponseDto(authException.getStatus().value() , authException.getType() , authException.getMessage()),
-                authException.getStatus()
+                new ApiErrorResponseDto(globalException.getStatus().value() , globalException.getType() , globalException.getMessage()),
+                globalException.getStatus()
         );
     }
-
 }

@@ -8,7 +8,6 @@ import com.monstersinc.stock101.common.model.vo.CommonConstants;
 import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.vo.User;
-import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,23 +38,23 @@ public class AuthServiceImpl implements AuthService {
         User user = authMapper.selectUserByEmail(email);
 
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            throw new GlobalException(GlobalExceptionMessage.DUPCLICATE_EMAIL);
+            throw new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND);
         }
 
         LocalDateTime requestedAt = user.getDeletedAt();
         //회원 탈퇴 요청자라면
-        if(requestedAt !=null){
-            LocalDateTime  now =  LocalDateTime.now();
-            long daysBetween = ChronoUnit.DAYS.between(requestedAt,now);
+        if (requestedAt != null) {
+            LocalDateTime now = LocalDateTime.now();
+            long daysBetween = ChronoUnit.DAYS.between(requestedAt, now);
 
             // 2주 안된 계정이라면 사용가능하게만든다.
-            if(daysBetween< CommonConstants.USER_DELETION_EXPIRE_DAYS ){
+            if (daysBetween < CommonConstants.USER_DELETION_EXPIRE_DAYS) {
                 // 현재 user 객체의 상태도 업데이트 (이후 로직을 위해)
                 user.setDeletedAt(null);
                 authMapper.cancelDeleteUser(user.getUserId());
 
-            }else{// 2주 지난 계정이라면 예외처리
-                throw new GlobalException(GlobalExceptionMessage.DUPCLICATE_EMAIL);
+            } else {// 2주 지난 계정이라면 예외처리
+                throw new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND);
             }
         }
 
@@ -67,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         List<String> rolesList = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
         // AccessToken 생성
-        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(),rolesList);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), rolesList);
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
@@ -89,6 +88,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String bearerToken) {
         String accessToken = jwtTokenProvider.resolveToken(bearerToken);
+
+        if (accessToken == null) {
+            throw new GlobalException(GlobalExceptionMessage.UNAUTHORIZED_TOKEN);
+        }
+
         jwtTokenProvider.addBlacklist(accessToken);
         jwtTokenProvider.deleteRefreshToken(accessToken);
     }
