@@ -24,5 +24,4 @@ public interface StockRestClientMapper {
     boolean existsNews(String newsId);
     void insertInsight(NewsIndicatorDto newsIndicatorDto);
     GetStockCodeDto getStockIdByCode(String ticker);
-    boolean existsInsight(String sentiment, Timestamp from, String id, String ticker);
 }
