@@ -57,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND);
             }
         }
+        authMapper.updateLastLogin(user.getUserId(),LocalDateTime.now());
 
         return createLoginResponse(user);
     }

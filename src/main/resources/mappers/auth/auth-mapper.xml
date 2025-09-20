@@ -13,8 +13,6 @@
         <result property="tierCode" column="tier_code"/>
         <result property="deletedAt" column="deleted_at"/>
         <result property="role" column="role"/>
-
-
     </resultMap>
 
     <select id="selectUserByEmail" parameterType="string" resultMap="userResultMap">
@@ -52,6 +50,14 @@
                 deleted_at = NULL
             WHERE
                 user_id = #{userId}
+    </update>
+
+    <update id="updateLastLogin">
+        UPDATE users
+        SET
+            last_login_at = #{now}
+        WHERE
+            user_id = #{userId}
     </update>
 </mapper>
 

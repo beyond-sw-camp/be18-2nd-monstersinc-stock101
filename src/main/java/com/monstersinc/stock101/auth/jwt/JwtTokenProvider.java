@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class JwtTokenProvider {
 
     private final JwtUtil jwtUtil;
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000L * 60L * 60; // 60분
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000L * 60L * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000L * 60L * 60L * 24L; // 1일
     private final RedisTemplate<String, String> redisTemplate;
     private final UserDetailsService userDetailsService;
