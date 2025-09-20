@@ -21,7 +21,10 @@ public class PostResponseDto {
     private String opinion;
     private String content;
     private String createdAt;
-    private boolean isDeleted;
+
+    private boolean likedByMe;
+    private int likeCount;
+    private int commentCount;
 
     public static PostResponseDto of(Post p) {
         return PostResponseDto.builder()
@@ -29,9 +32,11 @@ public class PostResponseDto {
                 .opinion(p.getOpinion())
                 .content(p.getContent())
                 .createdAt(p.getCreatedAt())
-                .isDeleted(p.isDeleted())
                 .stockId(p.getStockId())
                 .userId(p.getUserId())
+                .likedByMe(p.isLikedByMe())
+                .likeCount(p.getLikeCount())
+                .commentCount(p.getCommentCount())
                 .build();
     }
 

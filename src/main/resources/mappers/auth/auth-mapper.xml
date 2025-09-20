@@ -11,12 +11,11 @@
         <result property="createdAt" column="created_at"/>
         <result property="lastLoginAt" column="last_login_at"/>
         <result property="tierCode" column="tier_code"/>
-        <collection property="roles" ofType="string">
-            <result column="role_name"/>
-        </collection>
+        <result property="deletedAt" column="deleted_at"/>
+        <result property="role" column="role"/>
+
+
     </resultMap>
-
-
 
     <select id="selectUserByEmail" parameterType="string" resultMap="userResultMap">
         SELECT u.user_id,
@@ -26,10 +25,10 @@
                created_at,
                last_login_at,
                tier_code,
-               r.role_name
+               deleted_at,
+               role
+
         FROM users u
-                 LEFT JOIN  user_roles ur ON u.user_id =ur.user_id
-                 LEFT JOIN  roles r ON r.role_id =ur.user_id
 
         WHERE email = #{email};
     </select>
@@ -42,13 +41,18 @@
                created_at,
                last_login_at,
                tier_code,
-               r.role_name
+               role
         FROM users u
-                 LEFT JOIN  user_roles ur ON u.user_id =ur.user_id
-                 LEFT JOIN  roles r ON r.role_id =ur.user_id
         WHERE u.user_id = #{userId};
     </select>
-
+    
+    <update id="cancelDeleteUser">
+            UPDATE users
+            SET
+                deleted_at = NULL
+            WHERE
+                user_id = #{userId}
+    </update>
 </mapper>
 
 

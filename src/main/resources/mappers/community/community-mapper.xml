@@ -14,45 +14,194 @@
         FROM posts
     </sql>
 
+    <sql id="selectCommentSql">
+        SELECT
+            comment_id,
+            content,
+            created_at,
+            is_deleted,
+            post_id,
+            user_id,
+            parent_comment_id
+        FROM comments
+    </sql>
+
     <resultMap id="postResultMap" type="Post">
         <id     property="postId"   column="post_id" />
         <result property="opinion"  column="opinion" />
         <result property="content"  column="content" />
         <result property="createdAt" column="created_at" />
-        <!-- boolean isDeleted -> 자바빈 프로퍼티명 'deleted' 로 매핑 -->
-        <result property="isDeleted"  column="is_deleted" />
         <result property="stockId"  column="stock_id" />
         <result property="userId"   column="user_id" />
+
+        <result property="likedByMe"   column="likedByMe"    />
+        <result property="likeCount"   column="likeCount"    />
+        <result property="commentCount" column="commentCount" />
     </resultMap>
 
+    <resultMap id="commentResultMap" type="Comment">
+        <id property="commentId" column="comment_id"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="parentCommentId" column="parent_comment_id"/>
+    </resultMap>
+
+<!--
     <select id="selectPostsByStockId"
             resultMap="postResultMap">
         <include refid="selectPostSql" />
         <where>
-            stock_id = #{stockId}
-            AND is_deleted = 0
+            stock_id = #{stockId} AND is_deleted = 0
         </where>
         ORDER BY created_at DESC
     </select>
+-->
+    <select id="selectPostsByStockId" resultMap="postResultMap">
+        SELECT
+        p.post_id,
+        p.opinion,
+        p.content,
+        p.user_id,
+        p.created_at,
+
+        <!-- 내가 좋아요 눌렀는지 -->
+        <choose>
+            <when test="userId != null">
+                CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS likedByMe,
+            </when>
+            <otherwise>
+                0 AS likedByMe,
+            </otherwise>
+        </choose>
+
+        -- 전체 좋아요 개수
+        COUNT(DISTINCT l_all.user_id) AS likeCount,
+
+        -- 전체 댓글 개수
+        COUNT(DISTINCT c.comment_id) AS commentCount
+
+        FROM posts p
+
+        <!-- 내가 좋아요 눌렀는지 여부 -->
+        <if test="userId != null">
+            LEFT JOIN user_likes l
+            ON l.post_id = p.post_id
+            AND l.user_id = #{userId}
+        </if>
+
+        <!-- 전체 좋아요 개수 -->
+        LEFT JOIN user_likes l_all
+        ON l_all.post_id = p.post_id
+
+        <!-- 전체 댓글 개수 -->
+        LEFT JOIN comments c
+        ON c.post_id = p.post_id AND c.is_deleted = 0
+
+        WHERE p.stock_id = #{stockId}
+        AND p.is_deleted = 0
+
+        GROUP BY p.post_id, p.opinion, p.content, p.user_id, p.created_at
+
+        ORDER BY p.created_at DESC
+    </select>
+
+
 
     <select id="selectPostById"
             parameterType="long"
             resultMap="postResultMap">
         <include refid="selectPostSql" />
-          <where>
-            post_id = #{postId}
-          </where>
+        <where>
+            post_id = #{postId} AND is_deleted = 0
+        </where>
     </select>
 
     <insert id="insertPost"
-            parameterType="Post"
             useGeneratedKeys="true"
-            keyProperty="postId">
+            keyProperty="post.postId">
         INSERT INTO posts (
-            opinion, content, stock_id, user_id
+        opinion, content, stock_id, user_id
         ) VALUES (
-                     #{opinion}, #{content}, #{stockId}, #{userId}
-                 )
+        #{post.opinion}, #{post.content}, #{post.stockId}, #{userId}
+        )
     </insert>
+
+    <update id="softDeletePost" parameterType="long">
+        UPDATE posts
+        SET is_deleted = 1
+        WHERE post_id = #{postId}
+    </update>
+
+    <select id="isLiked" parameterType="map" resultType="_int">
+        SELECT COUNT(*)
+        FROM user_likes
+        <where>
+            post_id = #{postId} AND user_id = #{userId}
+        </where>
+    </select>
+
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO user_likes (post_id, user_id)
+        VALUES (#{postId}, #{userId})
+    </insert>
+
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM user_likes
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </delete>
+
+    <select id="selectCommentListByPost" parameterType="long" resultMap="commentResultMap">
+        <include refid="selectCommentSql"/>
+        WHERE post_id = #{postId} AND is_deleted = 0
+        ORDER BY
+            CASE WHEN parent_comment_id IS NULL THEN comment_id ELSE parent_comment_id END ASC, -- 스레드 묶음
+            CASE WHEN parent_comment_id IS NULL THEN 0 ELSE 1 END ASC,                          -- 부모 우선
+            created_at ASC                                                                       -- 자식은 시간순
+    </select>
+
+    <insert id="insertComment" parameterType="Comment" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO comments
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            content,
+            user_id,
+            post_id,
+            <if test="parentCommentId != null">parent_comment_id,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{content},
+            #{userId},
+            #{postId},
+            <if test="parentCommentId != null">#{parentCommentId},</if>
+        </trim>
+    </insert>
+
+
+    <select id="selectCommentById"
+            parameterType="long"
+            resultMap="commentResultMap">
+        <include refid="selectCommentSql" />
+        <where>
+            comment_id = #{commentId} AND is_deleted = 0
+        </where>
+    </select>
+
+    <update id="softDeleteComment" parameterType="long">
+        UPDATE comments
+        SET is_deleted = 1
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <select id="selectPostByUserId"
+            parameterType="long"
+            resultMap="postResultMap">
+        <include refid="selectPostSql" />
+        <where>
+            user_id = #{userId}
+        </where>
+    </select>
 
 </mapper>
