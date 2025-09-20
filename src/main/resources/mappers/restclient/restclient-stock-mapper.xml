@@ -72,10 +72,4 @@
         VALUES (#{result}, #{date}, #{ticker}, #{newsId}, #{stockId})
     </insert>
 
-    <select id="existsInsight">
-        SELECT COUNT(1) > 0
-        FROM news_indicators
-        WHERE news_id = #{newsId}
-    </select>
-
 </mapper>
