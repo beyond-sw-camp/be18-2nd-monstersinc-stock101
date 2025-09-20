@@ -6,6 +6,7 @@ import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.mapper.UserMapper;
+import com.monstersinc.stock101.user.model.vo.Role;
 import com.monstersinc.stock101.user.model.vo.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,6 +52,9 @@ public class UserServiceImpl implements UserService {
                 .password(encodedPassword)
                 .email(userRegisterRequestDto.getEmail()) // 새 레코드에는 원래 이메일 등록
                 .name(userRegisterRequestDto.getName())
+                .createdAt(LocalDateTime.now())
+                .role(Role.USER)
+                .tierCode("BRONZE")
                 .build();
 
         userMapper.insertUser(user);
@@ -85,15 +89,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User getUserByEmail(String email) {
-        return userMapper.findByEmail(email).orElseThrow(() ->
-                new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND));
+        return userMapper.findByEmail(email).orElse(null);
     }
 
     @Transactional(readOnly = true)
     @Override
     public User getUserByUserId(Long userId) {
-        return userMapper.findByUserId(userId).orElseThrow(() ->
-                new GlobalException(GlobalExceptionMessage.USER_NOT_FOUND));
+        return userMapper.findByUserId(userId).orElse(null);
     }
 
     @Transactional(readOnly = true)
