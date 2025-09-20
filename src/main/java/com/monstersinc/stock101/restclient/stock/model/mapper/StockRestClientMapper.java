@@ -1,5 +1,6 @@
 package com.monstersinc.stock101.restclient.stock.model.mapper;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -23,4 +24,5 @@ public interface StockRestClientMapper {
     boolean existsNews(String newsId);
     void insertInsight(NewsIndicatorDto newsIndicatorDto);
     GetStockCodeDto getStockIdByCode(String ticker);
+    boolean existsInsight(String sentiment, Timestamp from, String id, String ticker);
 }
