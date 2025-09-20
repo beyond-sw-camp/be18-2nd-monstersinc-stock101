@@ -29,7 +29,7 @@ public class StockRestClientServiceTest {
         when(mapper.getAllStockCodes()).thenReturn(List.of(new GetStockCodeDto(1L, "AAPL")));
 
         // Act: call the service
-        String res = service.getnews();
+        String res = service.getNews();
 
         // Assert: just ensure it returns successfully
         assertNotNull(res);

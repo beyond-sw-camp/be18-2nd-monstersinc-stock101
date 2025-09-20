@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
@@ -29,6 +30,7 @@ public class StockRestClientController {
     }
     @GetMapping("rest-client/getnews")
     public String getNews() {
-        return stockRestClientService.getnews();
-}
+        return stockRestClientService.getNews();
+    }
+    
 }
