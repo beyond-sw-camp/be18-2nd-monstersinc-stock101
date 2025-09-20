@@ -17,7 +17,7 @@ public class StockServiceImpl implements StockService {
     @Override
     public List<Stock> getStockList() {
         List<Stock> stockList = stockMapper.selectStockList();
-        if(stockList == null) {
+        if(stockList == null || stockList.isEmpty()) {
             throw new GlobalException(GlobalExceptionMessage.STOCK_NOT_FOUND);
         }
         return stockList;
