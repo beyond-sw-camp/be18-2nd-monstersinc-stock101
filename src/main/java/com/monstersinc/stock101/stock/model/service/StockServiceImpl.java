@@ -1,5 +1,7 @@
 package com.monstersinc.stock101.stock.model.service;
 
+import com.monstersinc.stock101.exception.GlobalException;
+import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.stock.model.mapper.StockMapper;
 import com.monstersinc.stock101.stock.model.vo.Stock;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +16,19 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<Stock> getStockList() {
-        return stockMapper.selectStockList();
+        List<Stock> stockList = stockMapper.selectStockList();
+        if(stockList == null) {
+            throw new GlobalException(GlobalExceptionMessage.STOCK_NOT_FOUND);
+        }
+        return stockList;
     }
 
     @Override
     public Stock getStockById(long stockId) {
-        return stockMapper.selectStockById(stockId);
+        Stock stock = stockMapper.selectStockById(stockId);
+        if(stock == null) {
+            throw new GlobalException(GlobalExceptionMessage.STOCK_NOT_FOUND);
+        }
+        return stock;
     }
 }

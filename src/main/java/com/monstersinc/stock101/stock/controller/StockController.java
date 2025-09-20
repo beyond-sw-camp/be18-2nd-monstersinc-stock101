@@ -1,5 +1,6 @@
 package com.monstersinc.stock101.stock.controller;
 
+import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
 import com.monstersinc.stock101.stock.model.service.StockService;
 import com.monstersinc.stock101.stock.model.vo.Stock;
@@ -28,8 +29,8 @@ public class StockController {
 
     // 특정 주식 정보 조회
     @GetMapping("/{stockId}")
-    public ResponseEntity<Stock> getStockById(@PathVariable long stockId) {
+    public ResponseEntity<BaseResponseDto<Stock>> getStockById(@PathVariable long stockId) {
         Stock stock = stockService.getStockById(stockId);
-        return ResponseEntity.ok(stock);
+        return ResponseEntity.ok(new BaseResponseDto<Stock>(HttpStatus.OK, stock));
     }
 }

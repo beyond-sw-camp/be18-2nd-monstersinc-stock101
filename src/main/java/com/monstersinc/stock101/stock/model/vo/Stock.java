@@ -14,6 +14,7 @@ import lombok.ToString;
 public class Stock {
     private Long stockId;              // 종목 ID
     private String name;               // 종목명
+    private String stockCode;
     private String individualIndicator; // 개미 지표 (STRONG_SELL, SELL, HOLD, BUY, STRONG_BUY)
     private String analystIndicator;    // 전문가 지표 (STRONG_SELL, SELL, HOLD, BUY, STRONG_BUY)
     private String newsIndicator;       // 뉴스 지표 (NEGATIVE, NEUTRAL, POSITIVE)
