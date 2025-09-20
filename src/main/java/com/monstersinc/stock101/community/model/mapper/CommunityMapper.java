@@ -14,9 +14,11 @@ public interface CommunityMapper {
 
     Post selectPostById(@Param("postId") long postId);
 
-    List<Post> selectPostsByStockId(@Param("stockId") long stockId);
+    List<Post> selectPostsByStockId(@Param("stockId") long stockId, @Param("userId") Long userId);
 
     void softDeletePost(@Param("postId") long postId);
+
+    int isLiked(Map<String, Long> postId);
 
     void insertLike(Map<String, Long> postId);
 
@@ -31,5 +33,7 @@ public interface CommunityMapper {
     void softDeleteComment(@Param("commentId") long commentId);
 
     List<Post> selectPostByUserId(@Param("userId") Long userId);
+
+
 }
 

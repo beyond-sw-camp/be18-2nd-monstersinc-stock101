@@ -2,17 +2,13 @@ package com.monstersinc.stock101.user.model.vo;
 
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import lombok.*;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -26,8 +22,7 @@ public class User implements UserDetails {
 
     private String name;
 
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    private Role role;
 
     private String password;
 
@@ -41,10 +36,8 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
 
-        return this.roles.stream().map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override

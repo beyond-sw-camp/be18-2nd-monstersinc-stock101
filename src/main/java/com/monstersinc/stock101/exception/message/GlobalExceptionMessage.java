@@ -9,13 +9,15 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum GlobalExceptionMessage {
 
-    EMAIL_NOT_FOUND("이메일 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    DUPLICATE_EMAIL("중복된 이메일 입니다.", HttpStatus.CONFLICT),
 
     USER_NOT_FOUND("유저 정보를 찾을 수 없습니다.",HttpStatus.NOT_FOUND),
 
-    UNAUTHORIZED_ACCESS("유저 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_TOKEN("유효한 인증 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
+  
+    UNAUTHORIZED_USER("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
 
-    UNAUTHORIZED_USER("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+    INDICATOR_NOT_FOUND("지표 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 
     private final String message;
 

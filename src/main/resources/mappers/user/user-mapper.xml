@@ -10,6 +10,8 @@
         <result property="createdAt" column="created_at"/>
         <result property="deletedAt" column="deleted_at"/>
         <result property="lastLoginAt" column="last_login_at"/>
+        <result property="role" column="role"/>
+        <result property="tierCode" column="tier_code"/>
     </resultMap>
 
     <insert id="insertUser" parameterType="com.monstersinc.stock101.user.model.vo.User" useGeneratedKeys="true" keyProperty="userId">
@@ -24,8 +26,12 @@
                password,
                created_at,
                last_login_at,
-               deleted_at
+               deleted_at,
+               role,
+               t.name
         FROM users u
+        LEFT JOIN
+            tiers t ON u.user_id = t.tier_code
         WHERE email = #{email};
     </select>
 
@@ -36,9 +42,13 @@
                password,
                created_at,
                last_login_at,
-               deleted_at
+               deleted_at,
+               role,
+               t.name
         FROM users u
-        WHERE u.user_id = #{userId}
+        LEFT JOIN
+             tiers t ON u.user_id = t.tier_code
+        WHERE u.user_id = #{userId};
     </select>
 
     <select id="existsByEmail" parameterType="string" resultType="boolean">

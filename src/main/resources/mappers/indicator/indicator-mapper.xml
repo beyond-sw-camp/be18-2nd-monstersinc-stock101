@@ -30,21 +30,6 @@
         FROM analyst_indicators
     </sql>
 
-    <!-- 뉴스 지표 SQL   -->
-    <sql id="selectNewsIndicatorSql">
-    SELECT
-        stock_id,
-        date,
-        result,
-        strong_sell,
-        sell,
-        hold,
-        buy,
-        strong_buy,
-        buy_news_id,
-        sell_news_id
-    FROM news_indicators
-    </sql>
 
     <!-- 개미 지표 ResultMap-->
     <resultMap id="individualIndicatorResultMap" type="IndividualIndicator">
@@ -70,19 +55,7 @@
         <result property="strongBuy"  column="strong_buy" />
     </resultMap>
 
-    <!-- 뉴스 지표 ResultMap-->
-    <resultMap id="newsIndicatorResultMap" type="NewsIndicator">
-        <id     property="stockId"   column="stock_id" />
-        <result property="date"   column="date" />
-        <result property="result"  column="result" />
-        <result property="strongSell"  column="strong_sell" />
-        <result property="sell"  column="sell" />
-        <result property="hold"  column="hold" />
-        <result property="buy"  column="buy" />
-        <result property="strongBuy"  column="strong_buy" />
-        <result property="buyNewsId" column="buy_news_id"/>
-        <result property="sellNewsId" column="sell_news_id"/>
-    </resultMap>
+
 
     <!-- Stock ID로 최신 개미 지표 조회-->
     <select id="selectIndividualIndicatorByStockId"
@@ -109,14 +82,27 @@
     </select>
 
     <!-- Stock ID로 최신 뉴스 지표 조회-->
+
+    <resultMap id="newsIndicatorResultMap" type="NewsIndicator">
+        <result property="stockId"       column="stock_id"/>
+        <result property="stockCode"         column="stock_code"/>
+        <result property="negativeCount" column="negative_count"/>
+        <result property="neutralCount"          column="neutral_count"/>
+        <result property="positiveCount"   column="positive_count"/>
+    </resultMap>
+
     <select id="selectNewsIndicatorByStockId"
             parameterType="long"
             resultMap="newsIndicatorResultMap">
-        <include refid="selectNewsIndicatorSql" />
-        <where>
-            stock_id = #{stockId}
-        </where>
-        ORDER BY date DESC
-        LIMIT 1
+        SELECT
+            stock_id,
+            stock_code,
+            COALESCE(SUM(CASE WHEN `result` = 'NEGATIVE' THEN 1 ELSE 0 END), 0) AS negative_count,
+            COALESCE(SUM(CASE WHEN `result` = 'NEUTRAL'  THEN 1 ELSE 0 END), 0) AS neutral_count,
+            COALESCE(SUM(CASE WHEN `result` = 'POSITIVE' THEN 1 ELSE 0 END), 0) AS positive_count
+        FROM news_indicators
+        WHERE stock_id = #{stockId}
+          AND `date` BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
+        GROUP BY stock_id, stock_code
     </select>
 </mapper>
