@@ -1,6 +1,8 @@
 package com.monstersinc.stock101.user.controller;
 
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
+import com.monstersinc.stock101.exception.GlobalException;
+import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
@@ -8,6 +10,7 @@ import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.xml.bind.annotation.XmlElementDecl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +56,7 @@ public class UserController {
         Map<String, Object> data = new HashMap<>();
 
         if (isEmailExist) {
-            data.put("available", false);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponseDto<>(HttpStatus.BAD_REQUEST, data));
+            throw new GlobalException(GlobalExceptionMessage.DUPLICATE_EMAIL);
         } else {
             data.put("available", true);
         }

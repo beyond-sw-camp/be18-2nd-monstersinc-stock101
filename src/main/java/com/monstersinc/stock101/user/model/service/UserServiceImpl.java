@@ -52,7 +52,9 @@ public class UserServiceImpl implements UserService {
                 .password(encodedPassword)
                 .email(userRegisterRequestDto.getEmail()) // 새 레코드에는 원래 이메일 등록
                 .name(userRegisterRequestDto.getName())
+                .createdAt(LocalDateTime.now())
                 .role(Role.USER)
+                .tierCode("BRONZE")
                 .build();
 
         userMapper.insertUser(user);
