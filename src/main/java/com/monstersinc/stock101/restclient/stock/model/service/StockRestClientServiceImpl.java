@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,7 +42,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
     //뉴스 가져오기
     @Override
-    public String getnews(){
+    public String getNews(){
         try{
             List<GetStockCodeDto> allStockCodes = getAllStockCodes();
             for(GetStockCodeDto getStockCodeDto : allStockCodes) {
@@ -118,15 +119,19 @@ public class StockRestClientServiceImpl implements StockRestClientService {
                             continue;
                         }
                         NewsIndicatorDto newsIndicatorDto =  NewsIndicatorDto.builder()
+                        .insightId(result.getPublishedUtc() + result.getId() + indicatiorInsight.getTicker())
                         .result(indicatiorInsight.getSentiment())
                         .date(Timestamp.from(Instant.parse(result.getPublishedUtc())))
                         .ticker(indicatiorInsight.getTicker())
                         .newsId(result.getId())
                         .stockId(newsIndicatorStockIdDto.getStockId())
                         .build();
-
+                        try{
                         stockRestClientMapper.insertInsight(newsIndicatorDto);
                         System.out.println("뉴스 인디케이터 추가중"+ indicatiorInsight.getTicker());
+                    } catch(DuplicateKeyException e){
+                        System.out.println("pk가 중복입니다");
+                    }
                     }
                             
                     //중복 뉴스 방지
@@ -285,7 +290,6 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             }
             return "Financial info updated successfully.";
         }
-
     public List<GetStockCodeDto> getAllStockCodes() {
         return stockRestClientMapper.getAllStockCodes();
     }
