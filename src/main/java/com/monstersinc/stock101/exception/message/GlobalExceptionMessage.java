@@ -19,7 +19,9 @@ public enum GlobalExceptionMessage {
 
     INDICATOR_NOT_FOUND("지표 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
-    STOCK_NOT_FOUND("주식 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    STOCK_NOT_FOUND("주식 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    DUPLICATE_PREDICTION("이미 동일한 종목에 대한 예측이 존재합니다.", HttpStatus.CONFLICT);
 
     private final String message;
 
