@@ -6,6 +6,7 @@
         SELECT
             s.stock_id,
             s.name,
+            s.stock_code,
             s.individual_indicator,
             s.analyst_indicator,
             s.news_indicator,
@@ -24,6 +25,7 @@
     <resultMap id="stockResultMap" type="Stock">
         <id property="stockId" column="stock_id"/>
         <result property="name" column="name"/>
+        <result property="stockCode" column="stock_code"/>
         <result property="individualIndicator" column="individual_indicator"/>
         <result property="analystIndicator" column="analyst_indicator"/>
         <result property="newsIndicator" column="news_indicator"/>

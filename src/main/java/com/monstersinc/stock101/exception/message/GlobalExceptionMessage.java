@@ -17,7 +17,9 @@ public enum GlobalExceptionMessage {
   
     UNAUTHORIZED_USER("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
 
-    INDICATOR_NOT_FOUND("지표 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    INDICATOR_NOT_FOUND("지표 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+    STOCK_NOT_FOUND("주식 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 
     private final String message;
 
