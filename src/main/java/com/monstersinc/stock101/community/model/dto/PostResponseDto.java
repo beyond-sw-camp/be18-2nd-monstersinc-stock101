@@ -25,6 +25,7 @@ public class PostResponseDto {
     private boolean likedByMe;
     private int likeCount;
     private int commentCount;
+    private String authorTierCode;
 
     public static PostResponseDto of(Post p) {
         return PostResponseDto.builder()
@@ -37,6 +38,7 @@ public class PostResponseDto {
                 .likedByMe(p.isLikedByMe())
                 .likeCount(p.getLikeCount())
                 .commentCount(p.getCommentCount())
+                .authorTierCode(p.getAuthorTierCode())
                 .build();
     }
 

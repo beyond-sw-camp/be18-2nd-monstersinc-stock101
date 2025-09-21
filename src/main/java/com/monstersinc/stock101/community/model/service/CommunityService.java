@@ -11,9 +11,7 @@ import java.util.List;
 public interface CommunityService {
     long saveAPost(long userId, PostRequestDto dto);
 
-    PostResponseDto getAPost(long postId);
-
-    PostResponseDto getPostDetail(long postId);
+    PostResponseDto getPostDetail(long postId, @Nullable Long userId);
 
     List<PostResponseDto> getPostListByStock(long stockId, @Nullable Long userId);
 
@@ -21,7 +19,7 @@ public interface CommunityService {
 
     int likePost(long postId, long userId);
 
-    List<CommentResponseDto> getCommentListByPost(long postId);
+    List<CommentResponseDto> getCommentListByPostId(long postId);
 
     long saveAComment(CommentRequestDto requestDto);
 
