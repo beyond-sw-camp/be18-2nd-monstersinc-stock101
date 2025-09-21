@@ -34,6 +34,7 @@
         <result property="createdAt" column="created_at" />
         <result property="stockId"  column="stock_id" />
         <result property="userId"   column="user_id" />
+        <result property="userName"   column="userName" />
         <result property="likedByMe"   column="likedByMe"    />
         <result property="likeCount"   column="likeCount"    />
         <result property="commentCount" column="commentCount" />
@@ -47,6 +48,7 @@
         <result property="isDeleted" column="is_deleted"/>
         <result property="postId" column="post_id"/>
         <result property="userId" column="user_id"/>
+        <result property="userName"   column="userName" />
         <result property="parentCommentId" column="parent_comment_id"/>
         <result property="authorTierCode" column="authorTierCode"/>
     </resultMap>
@@ -65,8 +67,9 @@
         SELECT
         p.*,
 
-        -- 작성자 등급
+        -- 작성자 등급 / 이름
         u.tier_code AS authorTierCode,
+        u.user_name  AS userName,
 
         <!-- 내가 좋아요 눌렀는지 (로그인 안 했으면 0) -->
         <choose>
@@ -111,8 +114,9 @@
         p.user_id,
         p.created_at,
 
-        -- 작성자 등급
+        -- 작성자 등급 / 이름
         u.tier_code AS authorTierCode,
+        u.user_name  AS userName,
 
         <!-- 내가 좋아요 눌렀는지 -->
         <choose>
@@ -157,7 +161,7 @@
 
         GROUP BY
         p.post_id, p.opinion, p.content, p.user_id, p.created_at,
-        u.tier_code
+        u.tier_code, u.user_name
 
         ORDER BY p.created_at DESC
     </select>
@@ -190,7 +194,8 @@
 
     <select id="selectCommentListByPostId" parameterType="long" resultMap="commentResultMap">
         SELECT t.*,
-        u.tier_code AS authorTierCode
+            u.tier_code AS authorTierCode,
+            u.user_name  AS userName
         FROM (
             <include refid="selectCommentSql"/>
             WHERE post_id = #{postId}
@@ -228,7 +233,9 @@
             resultMap="commentResultMap">
         SELECT
             t.*,
-            u.tier_code AS authorTierCode
+            u.tier_code AS authorTierCode,
+            u.user_name  AS userName
+
         FROM (
             <include refid="selectCommentSql"/>
         ) t
@@ -243,13 +250,65 @@
         WHERE comment_id = #{commentId}
     </update>
 
-    <select id="selectPostByUserId"
-            parameterType="long"
-            resultMap="postResultMap">
-        <include refid="selectPostSql" />
-        <where>
-            user_id = #{userId}
-        </where>
+    <select id="selectPostByUserId" resultMap="postResultMap">
+        SELECT
+        p.post_id,
+        p.opinion,
+        p.content,
+        p.user_id,
+        p.created_at,
+
+        -- 작성자 정보
+        u.tier_code  AS authorTierCode,
+        u.user_name  AS userName,
+
+        <!-- 내가 좋아요 눌렀는지 -->
+        <choose>
+            <when test="userId != null">
+                CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS likedByMe,
+            </when>
+            <otherwise>
+                0 AS likedByMe,
+            </otherwise>
+        </choose>
+
+        -- 전체 좋아요 개수
+        COUNT(DISTINCT l_all.user_id) AS likeCount,
+
+        -- 전체 댓글 개수
+        COUNT(DISTINCT c.comment_id)  AS commentCount
+
+        FROM posts p
+
+        -- 작성자 정보
+        LEFT JOIN users u
+        ON u.user_id = p.user_id
+
+        <!-- 내가 좋아요 눌렀는지 여부 -->
+        <if test="userId != null">
+            LEFT JOIN user_likes l
+            ON l.post_id = p.post_id
+            AND l.user_id = #{userId}
+        </if>
+
+        <!-- 전체 좋아요 개수 -->
+        LEFT JOIN user_likes l_all
+        ON l_all.post_id = p.post_id
+
+        <!-- 전체 댓글 개수 -->
+        LEFT JOIN comments c
+        ON c.post_id = p.post_id
+        AND c.is_deleted = 0
+
+        WHERE p.user_id = #{writerId}
+        AND p.is_deleted = 0
+
+        GROUP BY
+        p.post_id, p.opinion, p.content, p.user_id, p.created_at,
+        u.tier_code, u.user_name
+
+        ORDER BY p.created_at DESC
     </select>
+
 
 </mapper>

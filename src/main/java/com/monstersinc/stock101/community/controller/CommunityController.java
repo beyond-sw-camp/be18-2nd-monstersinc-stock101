@@ -133,18 +133,23 @@ public class CommunityController {
     }
 
     // 특정 유저가 작성한 게시물 조회 + 사용자 좋아요 여부(로그인 했을 때)
-    @GetMapping("/user/{user-id}")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> getPostByUserId(@PathVariable("user-id") long userId) {
+    @GetMapping("/user/{writerId}")
+    public ResponseEntity<ItemsResponseDto<PostResponseDto>> getPostByUserId(
+            @AuthenticationPrincipal User authenticationUser, // 로그인 안 했으면 null)
+            @PathVariable long writerId) {
 
-        List<PostResponseDto> items = communityService.getPostListByUserId(userId);
+        Long userId = (authenticationUser != null) ? authenticationUser.getUserId() : null;
+        List<PostResponseDto> items = communityService.getPostListByUserId(writerId, userId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
     // 내가 작성한 게시물 조회 + 로그인 필요 + 사용자 좋아요 여부
     @GetMapping("/me")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> getMyPosts(@AuthenticationPrincipal User authenticationUser) {
+    public ResponseEntity<ItemsResponseDto<PostResponseDto>> getMyPosts(
+            @AuthenticationPrincipal User authenticationUser) {
 
-        List<PostResponseDto> items = communityService.getPostListByUserId(authenticationUser.getUserId());
+        long userId = authenticationUser.getUserId();
+        List<PostResponseDto> items = communityService.getPostListByUserId(userId, userId);
 
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }

@@ -23,6 +23,7 @@ public class CommentResponseDto {
     private long userId;
     private Long parentCommentId;
 
+    private String userName;
     private String authorTierCode;
 
     public static CommentResponseDto of(Comment c) {
@@ -34,6 +35,7 @@ public class CommentResponseDto {
                 .postId(c.getPostId())
                 .userId(c.getUserId())
                 .parentCommentId(c.getParentCommentId())
+                .userName(c.getUserName())
                 .authorTierCode(c.getAuthorTierCode())
                 .build();
     }

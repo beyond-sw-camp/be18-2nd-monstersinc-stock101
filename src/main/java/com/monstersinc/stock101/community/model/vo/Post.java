@@ -19,6 +19,7 @@ public class Post {
     private long stockId;
     private Long userId;
 
+    private String userName;
     private boolean likedByMe;
     private int likeCount;
     private int commentCount;

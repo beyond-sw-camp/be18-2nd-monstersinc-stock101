@@ -27,5 +27,5 @@ public interface CommunityService {
 
     void deleteComment(long commentId);
 
-    List<PostResponseDto> getPostListByUserId(Long userId);
+    List<PostResponseDto> getPostListByUserId(long writerId, @Nullable Long userId);
 }
