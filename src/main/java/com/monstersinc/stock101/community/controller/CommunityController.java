@@ -38,17 +38,22 @@ public class CommunityController {
             @Valid @RequestBody PostRequestDto requestDto) {
 
         long userId = authenticationUser.getUserId();
-        long newId = communityService.saveAPost(userId, requestDto);
-        PostResponseDto body = communityService.getAPost(newId);
+        long postId = communityService.saveAPost(userId, requestDto);
+        PostResponseDto body = communityService.getPostDetail(postId, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
     }
 
-    // 게시물 상세 조회 + 로그인 필요 + 사용자 좋아요 여부
+    // 게시물 상세 조회 + 사용자 좋아요 여부(로그인 했으면)
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> detail(@PathVariable long postId) {
-        PostResponseDto dto = communityService.getPostDetail(postId);
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> detail(
+            @AuthenticationPrincipal User authenticationUser,
+            @PathVariable long postId) {
+
+        Long userId = (authenticationUser != null) ? authenticationUser.getUserId() : null;
+
+        PostResponseDto dto = communityService.getPostDetail(postId, userId);
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, dto));
     }
 
@@ -67,18 +72,17 @@ public class CommunityController {
     // 게시물 삭제
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<BaseResponseDto<String>> delete(@PathVariable long postId) {
-        PostResponseDto post = communityService.getAPost(postId);
 
-        communityService.delete(post.getPostId());
+        communityService.delete(postId);
 
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시글이 삭제되었습니다."));
     }
 
-    // 좋아요 등록 및 취소
+    // 좋아요 등록 및 취소 + 로그인 필요
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<BaseResponseDto<String>> like(
-            @PathVariable long postId,
-            @AuthenticationPrincipal User authenticationUser) {
+            @AuthenticationPrincipal User authenticationUser,
+            @PathVariable long postId) {
 
         long userId = authenticationUser.getUserId();
         int result = communityService.likePost(postId, userId);
@@ -91,30 +95,34 @@ public class CommunityController {
         }
     }
 
-    // 게시물 댓글 조회 + 로그인 필요
+    // 게시물 상세 페이지 댓글 조회
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments(
             @PathVariable long postId) {
 
-        List<CommentResponseDto> items = communityService.getCommentListByPost(postId);
+        List<CommentResponseDto> items = communityService.getCommentListByPostId(postId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
     // 댓글 등록 + 로그인 필요
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<BaseResponseDto<CommentResponseDto>> create(
+            @AuthenticationPrincipal User authenticationUser,
             @PathVariable long postId,
             @Valid @RequestBody CommentRequestDto requestDto) {
 
+        long userId = authenticationUser.getUserId();
         requestDto.setPostId(postId);
-        long newId = communityService.saveAComment(requestDto);
-        CommentResponseDto body = communityService.getAComment(newId);
+        requestDto.setUserId(userId);
+
+        long commentId = communityService.saveAComment(requestDto);
+        CommentResponseDto body = communityService.getAComment(commentId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
     }
 
-    // 댓글 삭제
+    // 댓글 삭제(관리자 권한)
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<BaseResponseDto<String>> deleteComment(
             @PathVariable long commentId) {
@@ -124,7 +132,7 @@ public class CommunityController {
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "댓글이 삭제되었습니다."));
     }
 
-    // 특정 유저가 작성한 게시물 조회 + 사용자 좋아요 여부
+    // 특정 유저가 작성한 게시물 조회 + 사용자 좋아요 여부(로그인 했을 때)
     @GetMapping("/user/{user-id}")
     public ResponseEntity<BaseResponseDto<PostResponseDto>> getPostByUserId(@PathVariable("user-id") long userId) {
 

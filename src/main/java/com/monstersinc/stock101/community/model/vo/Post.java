@@ -22,4 +22,5 @@ public class Post {
     private boolean likedByMe;
     private int likeCount;
     private int commentCount;
+    private String authorTierCode;
 }

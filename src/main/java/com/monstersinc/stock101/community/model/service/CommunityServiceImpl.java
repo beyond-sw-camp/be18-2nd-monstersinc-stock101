@@ -29,17 +29,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public PostResponseDto getAPost(long postId) {
-        Post post = communityMapper.selectPostById(postId);
-        if (post == null) {
-            throw new IllegalArgumentException("Post not found: " + postId);
-        }
-        return PostResponseDto.of(post);
-    }
-
-    @Override
-    public PostResponseDto getPostDetail(long postId) {
-        Post post = communityMapper.selectPostById(postId);
+    public PostResponseDto getPostDetail(long postId, @Nullable Long userId) {
+        Post post = communityMapper.selectPostById(postId, userId);
         if (post == null) {
             throw new IllegalArgumentException("Post not found: " + postId);
         }
@@ -55,6 +46,11 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     @Transactional
     public void delete(long postId) {
+        Post post = communityMapper.selectPostById(postId, null);
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found: " + postId);
+        }
+
         communityMapper.softDeletePost(postId);
     }
 
@@ -73,8 +69,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<CommentResponseDto> getCommentListByPost(long postId) {
-        List<Comment> rows = communityMapper.selectCommentListByPost(postId);
+    public List<CommentResponseDto> getCommentListByPostId(long postId) {
+        List<Comment> rows = communityMapper.selectCommentListByPostId(postId);
         return CommentResponseDto.of(rows);
     }
 
