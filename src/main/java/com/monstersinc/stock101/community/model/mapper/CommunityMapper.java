@@ -32,7 +32,7 @@ public interface CommunityMapper {
 
     void softDeleteComment(@Param("commentId") long commentId);
 
-    List<Post> selectPostByUserId(@Param("userId") Long userId);
+    List<Post> selectPostByUserId(@Param("writerId") long writerId, @Param("userId") Long userId);
 
 
 }

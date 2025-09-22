@@ -20,5 +20,6 @@ public class Comment {
     private long userId;
     private Long parentCommentId;
 
+    private String userName;
     private String authorTierCode;
 }

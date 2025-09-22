@@ -96,8 +96,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<PostResponseDto> getPostListByUserId(Long userId) {
-        List<Post> rows = communityMapper.selectPostByUserId(userId);
+    public List<PostResponseDto> getPostListByUserId(long writerId, Long userId) {
+        List<Post> rows = communityMapper.selectPostByUserId(writerId, userId);
         return PostResponseDto.of(rows);
     }
 
