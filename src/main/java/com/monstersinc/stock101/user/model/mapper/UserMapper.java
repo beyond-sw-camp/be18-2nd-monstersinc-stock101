@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -26,4 +27,7 @@ public interface UserMapper {
 
     void updateUser(User user);
 
-    void updateEmail(@Param("userId")Long userId, @Param("email")String markedEmail);}
+    void updateEmail(@Param("userId")Long userId, @Param("email")String markedEmail);
+
+    List<User> selectBestPredictors();
+}

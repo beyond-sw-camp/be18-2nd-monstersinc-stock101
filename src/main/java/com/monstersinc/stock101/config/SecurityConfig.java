@@ -34,9 +34,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/users/me").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/users/me").authenticated()
 
-                        // 2) 게시물, 좋아요 등록; 로그인 필요
+                        // 2) 게시물, 좋아요, 댓글 등록 및 내가 작성한 게시물 조회; 로그인 필요
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts/{postId}/like").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/board/posts/{postId}/comments").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/board/me").authenticated()
 
                         // 3) 조회는 공개
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/posts/**").permitAll()
@@ -46,6 +48,9 @@ public class SecurityConfig {
 
                         // 5) 주식은 조회만 있으므로 공개
                         .requestMatchers(HttpMethod.POST, "/api/v1/stock/**").permitAll()
+
+                        // 6) 다른 사람의 예측은 공개
+                        .requestMatchers(HttpMethod.GET, "/api/v1/prediction/user/{userId}").permitAll()
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
