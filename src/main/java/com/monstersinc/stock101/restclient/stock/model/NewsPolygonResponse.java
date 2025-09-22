@@ -15,6 +15,7 @@ public class NewsPolygonResponse {
     @Getter
     public static class Result {
         private String id;
+        private String image_url;
         private Financials financials;
         private String title;
         private List<String> tickers;

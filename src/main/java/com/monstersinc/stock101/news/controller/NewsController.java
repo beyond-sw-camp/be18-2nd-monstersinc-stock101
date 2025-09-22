@@ -1,8 +1,7 @@
 package com.monstersinc.stock101.news.controller;
 
-import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
-import com.monstersinc.stock101.news.model.service.NewsService;
-import com.monstersinc.stock101.news.model.vo.News;
+import java.util.List;
+
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.monstersinc.stock101.stock.model.service.StockService;
+import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
+import com.monstersinc.stock101.news.model.service.NewsService;
+import com.monstersinc.stock101.news.model.vo.News;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/news")

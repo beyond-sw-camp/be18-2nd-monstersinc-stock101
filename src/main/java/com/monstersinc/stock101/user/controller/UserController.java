@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.user.controller;
 
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
+import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
 import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
@@ -18,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -88,6 +90,14 @@ public class UserController {
                 .noContent()
                 .build();
 
+    }
+
+    @GetMapping("/best-predictors")
+    public ResponseEntity<ItemsResponseDto<User>> getBestPredictors() {
+
+        List<User> bestPredictors = userService.getBestPredictors();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ItemsResponseDto.ofAll(HttpStatus.OK, bestPredictors));
     }
 
 

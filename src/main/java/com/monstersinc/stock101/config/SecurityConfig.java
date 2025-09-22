@@ -48,6 +48,9 @@ public class SecurityConfig {
 
                         // 5) 주식은 조회만 있으므로 공개
                         .requestMatchers(HttpMethod.POST, "/api/v1/stock/**").permitAll()
+
+                        // 6) 다른 사람의 예측은 공개
+                        .requestMatchers(HttpMethod.GET, "/api/v1/prediction/user/{userId}").permitAll()
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
