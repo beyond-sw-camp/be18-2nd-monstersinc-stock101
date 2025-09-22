@@ -4,4 +4,6 @@ public interface StockRestClientService {
     String getStockprices();
     String getFinancialInfo(String timeframe);
     String getNews();
+    void getOAuthToken();
+    String getWebSocketKey();
 }
