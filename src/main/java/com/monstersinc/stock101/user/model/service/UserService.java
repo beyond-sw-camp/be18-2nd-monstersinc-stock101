@@ -6,6 +6,8 @@ import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 
+import java.util.List;
+
 public interface UserService {
     User registerUser(UserRegisterRequestDto userRegisterRequestDto);
 
@@ -18,4 +20,6 @@ public interface UserService {
     boolean checkEmailExists(String email);
 
     void softDeleteUser(Long userId);
+
+    List<User> getBestPredictors();
 }
