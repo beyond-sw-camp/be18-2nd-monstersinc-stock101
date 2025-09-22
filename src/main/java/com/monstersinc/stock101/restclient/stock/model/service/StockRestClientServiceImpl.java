@@ -261,6 +261,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
 
                     GetNewsDto getNewsDto = GetNewsDto.builder()
                             .newsId(result.getId())
+                            .image_url(result.getImage_url())
                             .title(result.getTitle())
                             .contentSummary(result.getDescription())
                             .articleUrl(result.getArticleUrl())
