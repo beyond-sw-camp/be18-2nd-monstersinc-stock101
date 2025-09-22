@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
@@ -42,6 +43,11 @@ public class StockRestClientController {
     @GetMapping("rest-client/getWSkey")
     public void getWSkey() {
         stockRestClientService.getWebSocketKey();
+    }
+    
+    @GetMapping("rest-client/sendWSkey")
+    public String sendWSkey() {
+        return stockRestClientService.sendWSkey();
     }
     
     

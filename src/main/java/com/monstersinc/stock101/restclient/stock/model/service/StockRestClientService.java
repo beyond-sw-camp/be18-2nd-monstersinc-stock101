@@ -6,4 +6,5 @@ public interface StockRestClientService {
     String getNews();
     void getOAuthToken();
     String getWebSocketKey();
+    String sendWSkey();
 }

@@ -181,6 +181,24 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             return null;
         }
     }
+    @Override
+    public String sendWSkey(){
+    // 1) 먼저 Redis에서 읽기
+    String wskey = redisTemplate.opsForValue().get("ws:approval_key");
+    if (wskey != null && !wskey.isEmpty()) return wskey;
+
+    // 2) 없으면 동기화 블록으로 한 번만 발급 요청하도록 함 (싱글인스턴스 환경)
+    synchronized (oauthLock) {
+        wskey = redisTemplate.opsForValue().get("oauth:access_token");
+        if (wskey != null && !wskey.isEmpty()) return wskey;
+
+        getWebSocketKey();
+
+        // 발급 후 다시 읽기
+        wskey = redisTemplate.opsForValue().get("oauth:access_token");
+        return wskey;
+    }
+}
 
 
     //뉴스 가져오기
@@ -468,5 +486,6 @@ public class StockRestClientServiceImpl implements StockRestClientService {
         token = redisTemplate.opsForValue().get("oauth:access_token");
         return token;
     }
+
 }
 }       
