@@ -57,8 +57,8 @@
     </update>
 
     <insert id="insertNews" parameterType="com.monstersinc.stock101.restclient.stock.model.dto.GetNewsDto">
-        INSERT INTO news (news_id, title, content_summary, published_at, link, ticker, result, stock_id)
-        VALUES (#{newsId}, #{title}, #{contentSummary}, #{publishedAt}, #{articleUrl}, #{ticker}, #{result}, #{stockId})
+        INSERT INTO news (news_id, title, content_summary, published_at, link, ticker, result, stock_id, img_url)
+        VALUES (#{newsId}, #{title}, #{contentSummary}, #{publishedAt}, #{articleUrl}, #{ticker}, #{result}, #{stockId}, #{image_url})
     </insert>
 
     <select id="existsNews" resultType="boolean" parameterType="string">
@@ -68,8 +68,8 @@
     </select>
 
     <insert id="insertInsight" parameterType="com.monstersinc.stock101.restclient.stock.model.dto.NewsIndicatorDto">
-        INSERT INTO news_indicators (result, date, stock_code, news_id, stock_id)
-        VALUES (#{result}, #{date}, #{ticker}, #{newsId}, #{stockId})
+        INSERT INTO news_indicators (Insight_id,result, date, stock_code, news_id, stock_id)
+        VALUES (#{insightId}, #{result}, #{date}, #{ticker}, #{newsId}, #{stockId})
     </insert>
 
 </mapper>

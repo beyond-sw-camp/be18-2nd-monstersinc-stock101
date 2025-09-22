@@ -13,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GetNewsDto {
     private String newsId;            // 뉴스 ID (PK)
+    private String image_url;
     private String link;            // 뉴스 원문 링크
     private String title;           // 뉴스 제목
     private String contentSummary;  // 뉴스 요약

@@ -24,6 +24,7 @@
             link,
             published_at,
             result,
+            img_url,
             click_count
         FROM news
         ORDER BY click_count DESC, published_at DESC
