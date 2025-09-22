@@ -7,6 +7,7 @@ import com.monstersinc.stock101.community.model.dto.PostResponseDto;
 import jakarta.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CommunityService {
     long saveAPost(long userId, PostRequestDto dto);
@@ -17,7 +18,7 @@ public interface CommunityService {
 
     void delete(long postId);
 
-    int likePost(long postId, long userId);
+    Map<String, Object> likePost(long postId, long userId);
 
     List<CommentResponseDto> getCommentListByPostId(long postId);
 

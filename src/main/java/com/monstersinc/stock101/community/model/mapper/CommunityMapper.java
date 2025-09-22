@@ -34,6 +34,6 @@ public interface CommunityMapper {
 
     List<Post> selectPostByUserId(@Param("writerId") long writerId, @Param("userId") Long userId);
 
-
+    Map<String, Object> selectLikeAndCommentCount(long postId);
 }
 
