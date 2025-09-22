@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -80,19 +81,14 @@ public class CommunityController {
 
     // 좋아요 등록 및 취소 + 로그인 필요
     @PostMapping("/posts/{postId}/like")
-    public ResponseEntity<BaseResponseDto<String>> like(
+    public ResponseEntity<BaseResponseDto<Map<String, Object>>> like(
             @AuthenticationPrincipal User authenticationUser,
             @PathVariable long postId) {
 
         long userId = authenticationUser.getUserId();
-        int result = communityService.likePost(postId, userId);
+        Map<String, Object> total = communityService.likePost(postId, userId);
 
-        if (result == 0) {
-            return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 반영되었습니다."));
-        }
-        else {
-            return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 취소되었습니다."));
-        }
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, total));
     }
 
     // 게시물 상세 페이지 댓글 조회

@@ -16,14 +16,14 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class PostRequestDto {
-    @NotNull
+    @NotNull(message = "STOCK_ID_REQUIRED")
     private long stockId;
 
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "OPINION_REQUIRED")
     private String opinion;
 
-    @NotBlank
+    @NotBlank(message = "CONTENT_REQUIRED")
+    @Size(max = 300, message = "CONTENT_TOO_LONG")
     private String content;
 
     public Post toPost() {

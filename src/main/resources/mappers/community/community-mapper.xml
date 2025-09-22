@@ -51,6 +51,8 @@
         <result property="userName"   column="userName" />
         <result property="parentCommentId" column="parent_comment_id"/>
         <result property="authorTierCode" column="authorTierCode"/>
+        <result property="totalCommentCount" column="totalCommentCount"/>
+
     </resultMap>
 
     <insert id="insertPost"
@@ -234,8 +236,13 @@
         SELECT
             t.*,
             u.tier_code AS authorTierCode,
-            u.user_name  AS userName
-
+            u.user_name  AS userName,
+            (
+                SELECT COUNT(*)
+                FROM comments c
+                WHERE c.post_id = t.post_id
+                AND c.is_deleted = 0
+            ) AS totalCommentCount
         FROM (
             <include refid="selectCommentSql"/>
         ) t
@@ -310,5 +317,14 @@
         ORDER BY p.created_at DESC
     </select>
 
+    <select id="selectLikeAndCommentCount" parameterType="long" resultType="map">
+        SELECT
+            COUNT(DISTINCT l.user_id) AS likeCount,
+            COUNT(DISTINCT c.comment_id) AS commentCount
+        FROM posts p
+                 LEFT JOIN user_likes l ON l.post_id = p.post_id
+                 LEFT JOIN comments c   ON c.post_id = p.post_id AND c.is_deleted = 0
+        WHERE p.post_id = #{postId}
+    </select>
 
 </mapper>
