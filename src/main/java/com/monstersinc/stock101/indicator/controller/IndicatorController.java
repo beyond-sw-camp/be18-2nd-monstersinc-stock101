@@ -3,6 +3,7 @@ package com.monstersinc.stock101.indicator.controller;
 import com.monstersinc.stock101.common.model.dto.BaseResponseDto;
 import com.monstersinc.stock101.indicator.model.service.IndicatorService;
 import com.monstersinc.stock101.indicator.model.vo.AnalystIndicator;
+import com.monstersinc.stock101.indicator.model.vo.FinancialIndicator;
 import com.monstersinc.stock101.indicator.model.vo.IndividualIndicator;
 import com.monstersinc.stock101.indicator.model.vo.NewsIndicator;
 import com.monstersinc.stock101.stock.model.service.StockService;
@@ -57,5 +58,15 @@ public class IndicatorController {
         }
 
         return ResponseEntity.ok(new BaseResponseDto<NewsIndicator>(HttpStatus.OK, indicator));
+    }
+
+    @GetMapping("/financial-indicator")
+    public ResponseEntity<BaseResponseDto<FinancialIndicator>> getFinancialIndicator(@RequestParam long stockId) {
+        FinancialIndicator indicator = indicatorService.getFinancialIndicator(stockId);
+
+        if(indicator == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new BaseResponseDto<>(HttpStatus.NO_CONTENT, null));
+        }
+        return ResponseEntity.ok(new BaseResponseDto<FinancialIndicator>(HttpStatus.OK, indicator));
     }
 }

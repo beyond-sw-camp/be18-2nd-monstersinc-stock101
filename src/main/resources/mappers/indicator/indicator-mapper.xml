@@ -105,4 +105,41 @@
           AND `date` BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
         GROUP BY stock_id, stock_code
     </select>
+
+    <!-- 재무 지표 SQL -->
+    <sql id="selectFinancialIndicatorSql">
+        SELECT
+            financial_id,
+            EPS,
+            BPS,
+            ROE,
+            ROA,
+            quarter,
+            stock_id
+        FROM financial_indicators
+    </sql>
+
+    <!-- 재무 지표 ResultMap -->
+    <resultMap id="financialIndicatorResultMap" type="FinancialIndicator">
+        <id     property="financialId" column="financial_id"/>
+        <result property="eps"         column="EPS"/>
+        <result property="bps"         column="BPS"/>
+        <result property="roe"         column="ROE"/>
+        <result property="roa"         column="ROA"/>
+        <result property="quarter"     column="quarter"/>
+        <result property="stockId"     column="stock_id"/>
+    </resultMap>
+
+    <!-- Stock ID로 최신 재무 지표 조회 -->
+    <select id="selectFinancialIndicatorByStockId"
+            parameterType="long"
+            resultMap="financialIndicatorResultMap">
+        <include refid="selectFinancialIndicatorSql"/>
+        <where>
+            stock_id = #{stockId}
+        </where>
+        ORDER BY financial_id DESC
+        LIMIT 1
+    </select>
+
 </mapper>
