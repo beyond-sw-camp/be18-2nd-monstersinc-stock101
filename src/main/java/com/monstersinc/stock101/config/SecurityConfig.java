@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(customizer ->
                         customizer.configurationSource(getCorsConfigurationSource()))
-                .authorizeHttpRequests(auth-> auth
+                .authorizeHttpRequests(auth -> auth
                         // 1) 로그인 관련
                         .requestMatchers("/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
@@ -65,7 +65,7 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout-> logout.disable());
+                .logout(logout -> logout.disable());
 
         return http.build();
     }
@@ -75,9 +75,7 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
-<<<<<<< Updated upstream
-}
-=======
+
 
     private static CorsConfigurationSource getCorsConfigurationSource() {
 
@@ -109,4 +107,3 @@ public class SecurityConfig {
     }
 
 }
->>>>>>> Stashed changes
