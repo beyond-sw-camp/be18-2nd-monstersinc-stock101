@@ -76,6 +76,9 @@ public class AuthServiceImpl implements AuthService {
                 .issuedAt(jwtUtil.getIssuedAt(accessToken))
                 .expiresAt(jwtUtil.getExpiration(accessToken))
                 .roles(rolesList)
+                .tierCode(user.getTierCode())
+                .userName(user.getUsername())
+                .statusMessage(user.getStatusMessage())
                 .build();
     }
 
