@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.indicator.model.mapper;
 
 import com.monstersinc.stock101.indicator.model.vo.AnalystIndicator;
+import com.monstersinc.stock101.indicator.model.vo.FinancialIndicator;
 import com.monstersinc.stock101.indicator.model.vo.IndividualIndicator;
 import com.monstersinc.stock101.indicator.model.vo.NewsIndicator;
 import org.apache.ibatis.annotations.Mapper;
@@ -13,4 +14,6 @@ public interface IndicatorMapper {
     AnalystIndicator selectAnalystIndicatorByStockId(long stockId);
 
     NewsIndicator selectNewsIndicatorByStockId(long stockId);
+
+    FinancialIndicator selectFinancialIndicatorByStockId(long stockId);
 }
