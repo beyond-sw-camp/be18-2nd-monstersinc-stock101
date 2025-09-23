@@ -4,6 +4,7 @@ import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.indicator.model.mapper.IndicatorMapper;
 import com.monstersinc.stock101.indicator.model.vo.AnalystIndicator;
+import com.monstersinc.stock101.indicator.model.vo.FinancialIndicator;
 import com.monstersinc.stock101.indicator.model.vo.IndividualIndicator;
 import com.monstersinc.stock101.indicator.model.vo.NewsIndicator;
 import com.monstersinc.stock101.stock.model.mapper.StockMapper;
@@ -46,5 +47,15 @@ public class IndicatorServiceImpl implements IndicatorService {
             throw new GlobalException(GlobalExceptionMessage.INDICATOR_NOT_FOUND);
         }
             return indicator;
+    }
+
+    @Override
+    public FinancialIndicator getFinancialIndicator(long stockId) {
+        FinancialIndicator indicator =
+         indicatorMapper.selectFinancialIndicatorByStockId(stockId);
+        if(indicator == null) {
+            throw new GlobalException(GlobalExceptionMessage.INDICATOR_NOT_FOUND);
+        }
+        return indicator;
     }
 }
