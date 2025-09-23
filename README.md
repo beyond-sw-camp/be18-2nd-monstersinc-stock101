@@ -57,7 +57,7 @@
 <img width="1428" height="819" alt="image" src="https://github.com/user-attachments/assets/aaf346ab-7e0c-4373-b899-f4df031fd0d0" />
 
 
-## 🪧ERD
+## [🪧ERD](https://www.erdcloud.com/d/zo7c3EtFTFLD6g6gD)
 <img width="2808" height="1647" alt="Stock101-3" src="https://github.com/user-attachments/assets/c13278dc-4556-4397-8f58-511caae2f100" />
 
 
