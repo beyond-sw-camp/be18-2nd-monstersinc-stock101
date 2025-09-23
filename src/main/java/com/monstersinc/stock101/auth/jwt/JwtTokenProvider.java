@@ -79,7 +79,7 @@ public class JwtTokenProvider {
         return redisTemplate.hasKey(key);
     }
 
-    private boolean isValidRefreshToken(String refreshToken) {
+    public boolean isValidRefreshToken(String refreshToken) {
         String userId = jwtUtil.getUserId(refreshToken);
         String storedRefreshToken = redisTemplate.opsForValue().get("refresh:" + userId);
 

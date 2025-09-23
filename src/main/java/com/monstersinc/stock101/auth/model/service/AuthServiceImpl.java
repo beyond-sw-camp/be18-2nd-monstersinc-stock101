@@ -97,4 +97,22 @@ public class AuthServiceImpl implements AuthService {
         jwtTokenProvider.addBlacklist(accessToken);
         jwtTokenProvider.deleteRefreshToken(accessToken);
     }
+
+    @Override
+    public LoginResponse refreshAccessToken(String refreshToken) {
+        // 1. 리프레시 토큰(Refresh Token) 검증
+        if (refreshToken.isBlank() || !jwtUtil.validateToken(refreshToken)) {
+            throw new GlobalException(GlobalExceptionMessage.UNAUTHORIZED_TOKEN);
+        }
+
+        // 2. Redis의 리프레시 토큰(Refresh Token)과 비교
+        if (!jwtTokenProvider.isValidRefreshToken(refreshToken)) {
+            throw new GlobalException(GlobalExceptionMessage.UNAUTHORIZED_TOKEN);
+        }
+
+        // 3. 사용자 정보 조회 후 새로운 LoginResponse 객체를 생성
+        User user = authMapper.selectUserByUserId(Long.parseLong(jwtUtil.getUserId(refreshToken)));
+
+        return createLoginResponse(user);
+    }
 }
