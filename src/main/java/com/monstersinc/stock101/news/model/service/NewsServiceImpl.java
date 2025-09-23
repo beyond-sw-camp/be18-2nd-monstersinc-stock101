@@ -1,11 +1,13 @@
 package com.monstersinc.stock101.news.model.service;
 
-import com.monstersinc.stock101.news.model.mapper.NewsMapper;
-import com.monstersinc.stock101.news.model.vo.News;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.monstersinc.stock101.news.model.mapper.NewsMapper;
+import com.monstersinc.stock101.news.model.vo.News;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

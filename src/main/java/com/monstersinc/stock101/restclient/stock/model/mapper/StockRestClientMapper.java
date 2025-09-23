@@ -1,5 +1,6 @@
 package com.monstersinc.stock101.restclient.stock.model.mapper;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;

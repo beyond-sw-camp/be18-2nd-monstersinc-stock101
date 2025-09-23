@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -31,90 +32,93 @@ import java.util.List;
 public class CommunityController {
     private final CommunityService communityService;
 
-    // 게시물 등록 (로그인 필요)
+    // 게시물 등록 + 로그인 필요
     @PostMapping("/posts")
     public ResponseEntity<BaseResponseDto<PostResponseDto>> create(
             @AuthenticationPrincipal User authenticationUser,
             @Valid @RequestBody PostRequestDto requestDto) {
 
         long userId = authenticationUser.getUserId();
-        long newId = communityService.saveAPost(userId, requestDto);
-        PostResponseDto body = communityService.getAPost(newId);
+        long postId = communityService.saveAPost(userId, requestDto);
+        PostResponseDto body = communityService.getPostDetail(postId, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
     }
 
-    // 게시물 상세 조회
+    // 게시물 상세 조회 + 사용자 좋아요 여부(로그인 했으면)
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> detail(@PathVariable long postId) {
-        PostResponseDto dto = communityService.getPostDetail(postId);
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> detail(
+            @AuthenticationPrincipal User authenticationUser,
+            @PathVariable long postId) {
+
+        Long userId = (authenticationUser != null) ? authenticationUser.getUserId() : null;
+
+        PostResponseDto dto = communityService.getPostDetail(postId, userId);
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, dto));
     }
 
-    // 종목 별 게시물 리스트 조회
+    // 종목 별 게시물 리스트 조회 + 사용자 좋아요 여부(로그인 했으면)
     @GetMapping("/posts")
     public ResponseEntity<ItemsResponseDto<PostResponseDto>> list(
+            @AuthenticationPrincipal User authenticationUser, // 로그인 안 했으면 null
             @RequestParam long stockId) {
 
-        List<PostResponseDto> items = communityService.getPostListByStock(stockId);
+        Long userId = (authenticationUser != null) ? authenticationUser.getUserId() : null;
+
+        List<PostResponseDto> items = communityService.getPostListByStock(stockId, userId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
     // 게시물 삭제
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<BaseResponseDto<String>> delete(@PathVariable long postId) {
-        PostResponseDto post = communityService.getAPost(postId);
 
-        communityService.delete(post.getPostId());
+        communityService.delete(postId);
 
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "게시글이 삭제되었습니다."));
     }
 
-    // 좋아요 등록
+    // 좋아요 등록 및 취소 + 로그인 필요
     @PostMapping("/posts/{postId}/like")
-    public ResponseEntity<BaseResponseDto<String>> like(
-            @PathVariable long postId,
-            @RequestParam long userId) {
+    public ResponseEntity<BaseResponseDto<Map<String, Object>>> like(
+            @AuthenticationPrincipal User authenticationUser,
+            @PathVariable long postId) {
 
-        communityService.likePost(postId, userId);
-        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 반영되었습니다."));
+        long userId = authenticationUser.getUserId();
+        Map<String, Object> total = communityService.likePost(postId, userId);
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, total));
     }
 
-    // 좋아요 취소
-    @DeleteMapping("/posts/{postId}/like")
-    public ResponseEntity<BaseResponseDto<String>> dislike(
-            @PathVariable long postId,
-            @RequestParam long userId) {
-
-        communityService.unlikePost(postId, userId);
-        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "좋아요가 취소되었습니다."));
-    }
-
-    // 게시물 댓글 조회
+    // 게시물 상세 페이지 댓글 조회
     @GetMapping("/posts/{postId}/comments")
     public ResponseEntity<ItemsResponseDto<CommentResponseDto>> listComments(
             @PathVariable long postId) {
 
-        List<CommentResponseDto> items = communityService.getCommentListByPost(postId);
+        List<CommentResponseDto> items = communityService.getCommentListByPostId(postId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
-    // 댓글 등록
+    // 댓글 등록 + 로그인 필요
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<BaseResponseDto<CommentResponseDto>> create(
+            @AuthenticationPrincipal User authenticationUser,
             @PathVariable long postId,
             @Valid @RequestBody CommentRequestDto requestDto) {
 
+        long userId = authenticationUser.getUserId();
         requestDto.setPostId(postId);
-        long newId = communityService.saveAComment(requestDto);
-        CommentResponseDto body = communityService.getAComment(newId);
+        requestDto.setUserId(userId);
+
+        long commentId = communityService.saveAComment(requestDto);
+        CommentResponseDto body = communityService.getAComment(commentId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new BaseResponseDto<>(HttpStatus.CREATED, body));
     }
 
-    // 댓글 삭제
+    // 댓글 삭제(관리자 권한)
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<BaseResponseDto<String>> deleteComment(
             @PathVariable long commentId) {
@@ -124,19 +128,24 @@ public class CommunityController {
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, "댓글이 삭제되었습니다."));
     }
 
-    // 특정 유저가 작성한 게시물 조회
-    @GetMapping("/user/{user-id}")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> getPostByUserId(@PathVariable("user-id") long userId) {
+    // 특정 유저가 작성한 게시물 조회 + 사용자 좋아요 여부(로그인 했을 때)
+    @GetMapping("/user/{writerId}")
+    public ResponseEntity<ItemsResponseDto<PostResponseDto>> getPostByUserId(
+            @AuthenticationPrincipal User authenticationUser, // 로그인 안 했으면 null)
+            @PathVariable long writerId) {
 
-        List<PostResponseDto> items = communityService.getPostListByUserId(userId);
+        Long userId = (authenticationUser != null) ? authenticationUser.getUserId() : null;
+        List<PostResponseDto> items = communityService.getPostListByUserId(writerId, userId);
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }
 
-    // 내가 작성한 게시물 조회
+    // 내가 작성한 게시물 조회 + 로그인 필요 + 사용자 좋아요 여부
     @GetMapping("/me")
-    public ResponseEntity<BaseResponseDto<PostResponseDto>> getMyPosts(@AuthenticationPrincipal User authenticationUser) {
+    public ResponseEntity<ItemsResponseDto<PostResponseDto>> getMyPosts(
+            @AuthenticationPrincipal User authenticationUser) {
 
-        List<PostResponseDto> items = communityService.getPostListByUserId(authenticationUser.getUserId());
+        long userId = authenticationUser.getUserId();
+        List<PostResponseDto> items = communityService.getPostListByUserId(userId, userId);
 
         return ResponseEntity.ok(ItemsResponseDto.ofAll(HttpStatus.OK, items));
     }

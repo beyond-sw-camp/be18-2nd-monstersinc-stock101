@@ -12,17 +12,19 @@ import java.util.Map;
 public interface CommunityMapper {
     void insertPost(@Param("userId") long userId, @Param("post") Post post);
 
-    Post selectPostById(@Param("postId") long postId);
+    Post selectPostById(@Param("postId") long postId, @Param("userId") Long userId);
 
-    List<Post> selectPostsByStockId(@Param("stockId") long stockId);
+    List<Post> selectPostsByStockId(@Param("stockId") long stockId, @Param("userId") Long userId);
 
     void softDeletePost(@Param("postId") long postId);
+
+    int isLiked(Map<String, Long> postId);
 
     void insertLike(Map<String, Long> postId);
 
     void deleteLike(Map<String, Long> postId);
 
-    List<Comment> selectCommentListByPost(@Param("postId") long postId);
+    List<Comment> selectCommentListByPostId(@Param("postId") long postId);
 
     void insertComment(Comment comment);
 
@@ -30,6 +32,8 @@ public interface CommunityMapper {
 
     void softDeleteComment(@Param("commentId") long commentId);
 
-    List<Post> selectPostByUserId(@Param("userId") Long userId);
+    List<Post> selectPostByUserId(@Param("writerId") long writerId, @Param("userId") Long userId);
+
+    Map<String, Object> selectLikeAndCommentCount(long postId);
 }
 

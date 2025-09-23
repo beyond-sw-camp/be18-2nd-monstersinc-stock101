@@ -3,5 +3,8 @@ package com.monstersinc.stock101.restclient.stock.model.service;
 public interface StockRestClientService {
     String getStockprices();
     String getFinancialInfo(String timeframe);
-    String getnews();
+    String getNews();
+    void getOAuthToken();
+    String getWebSocketKey();
+    String sendWSkey();
 }

@@ -12,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewsIndicatorDto {
+    private String insightId;
     private String result;          // 감정 분석 결과 (예: positive, neutral, negative)
     private Timestamp date;     // 발행 시간 (ISO8601 문자열 or LocalDateTime으로 변환 가능)
     private String ticker;          // 종목 티커

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.monstersinc.stock101.prediction.model.mapper.PredictionMapper">
+    <resultMap id="predictionResultMap" type="Prediction">
+        <id     property="predictionId" column="prediction_id"/>
+        <result property="userId"       column="user_id"/>
+        <result property="stockId"      column="stock_id"/>
+        <result property="predictedAt"  column="predicted_at"/>
+        <result property="prediction"   column="prediction"/>   <!-- PredictionType (Enum name <-> VARCHAR) -->
+        <result property="evaluatedAt"  column="evaluated_at"/>
+        <result property="actualPrice"  column="actual_price"/>
+        <result property="result"       column="result"/>       <!-- PredictionResult (Enum or NULL) -->
+    </resultMap>
+
+    <!-- 단건 조회 -->
+    <select id="selectById" parameterType="long" resultMap="predictionResultMap">
+        SELECT
+            prediction_id,
+            user_id,
+            stock_id,
+            predicted_at,
+            prediction,
+            evaluated_at,
+            actual_price,
+            result
+        FROM predictions
+        WHERE prediction_id = #{predictionId}
+    </select>
+
+    <select id="selectByUserId" parameterType="long" resultMap="predictionResultMap">
+        SELECT
+            prediction_id,
+            user_id,
+            stock_id,
+            predicted_at,
+            prediction,
+            evaluated_at,
+            actual_price,
+            result
+        FROM predictions
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="existsPendingPrediction" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM predictions
+            WHERE user_id = #{userId}
+              AND stock_id = #{stockId}
+              AND result IS NULL
+            ORDER BY predicted_at DESC
+            LIMIT 1
+        )
+    </select>
+
+    <!-- 생성: evaluated_at, actual_price, result는 NULL로 강제 -->
+    <insert id="insertPrediction"
+            parameterType="com.monstersinc.stock101.prediction.model.vo.Prediction"
+            useGeneratedKeys="true"
+            keyProperty="predictionId">
+        INSERT INTO predictions (
+        user_id,
+        stock_id,
+        prediction
+        ) VALUES (
+        #{userId},
+        #{stockId},
+        #{prediction, jdbcType=VARCHAR}
+        )
+    </insert>
+
+
+</mapper>
