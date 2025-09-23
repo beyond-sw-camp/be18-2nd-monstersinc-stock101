@@ -27,6 +27,7 @@ public class PostResponseDto {
     private int likeCount;
     private int commentCount;
     private String authorTierCode;
+    private String imageUrl;
 
     public static PostResponseDto of(Post p) {
         return PostResponseDto.builder()
@@ -41,6 +42,7 @@ public class PostResponseDto {
                 .likeCount(p.getLikeCount())
                 .commentCount(p.getCommentCount())
                 .authorTierCode(p.getAuthorTierCode())
+                .imageUrl(p.getImageUrl())
                 .build();
     }
 

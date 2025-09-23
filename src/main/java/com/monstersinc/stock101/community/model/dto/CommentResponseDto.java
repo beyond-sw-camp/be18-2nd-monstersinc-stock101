@@ -26,6 +26,7 @@ public class CommentResponseDto {
     private String userName;
     private String authorTierCode;
     private int totalCommentCount;
+    private String imageUrl;
 
     public static CommentResponseDto of(Comment c) {
         return CommentResponseDto.builder()
@@ -39,6 +40,7 @@ public class CommentResponseDto {
                 .userName(c.getUserName())
                 .authorTierCode(c.getAuthorTierCode())
                 .totalCommentCount(c.getTotalCommentCount())
+                .imageUrl(c.getImageUrl())
                 .build();
     }
 
