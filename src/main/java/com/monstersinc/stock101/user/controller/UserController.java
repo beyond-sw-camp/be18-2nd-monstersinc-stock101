@@ -8,6 +8,7 @@ import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -44,6 +45,12 @@ public class UserController {
 
         // user 정보를 리턴한다.
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, user));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponseDto<UserProfile>> getUserById(@PathVariable Long userId) {
+        UserProfile profile = userService.getUserProfileById(userId);
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, profile));
     }
 
     @GetMapping("/check-id")

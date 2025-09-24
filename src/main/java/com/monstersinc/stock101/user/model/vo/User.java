@@ -36,6 +36,8 @@ public class User implements UserDetails {
 
     private String statusMessage;
 
+    private String imageUrl;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
