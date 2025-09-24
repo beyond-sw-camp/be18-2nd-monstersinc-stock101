@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.user.model.mapper;
 
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -25,9 +26,11 @@ public interface UserMapper {
     // userId(PK) 값으로 유저가 존재하는지 확인한다.
     boolean existsByUserId(Long userId);
 
-    void updateUser(User user);
+    void updateUserProfile(User user);
 
     void updateEmail(@Param("userId")Long userId, @Param("email")String markedEmail);
 
     List<User> selectBestPredictors();
+
+    UserProfile getUserProfileById(Long userId);
 }

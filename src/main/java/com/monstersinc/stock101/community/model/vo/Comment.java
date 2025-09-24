@@ -23,5 +23,5 @@ public class Comment {
     private String userName;
     private String authorTierCode;
     private int totalCommentCount;
-
+    private String imageUrl;
 }

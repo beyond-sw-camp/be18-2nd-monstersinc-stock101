@@ -1,6 +1,6 @@
 package com.monstersinc.stock101.user.model.vo;
 
-import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
+import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,6 +33,10 @@ public class User implements UserDetails {
     private LocalDateTime deletedAt;
 
     private String tierCode;
+
+    private String statusMessage;
+
+    private String imageUrl;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -69,24 +73,17 @@ public class User implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
-    public void update(UserUpdateRequestDto dto, String  encodedPassword) {
+    public void update(UpdateProfileRequestDto dto) {
 
         if (dto.hasName()) {
             this.name = dto.getName();
         }
 
-        if(dto.hasTierCode()){
-            this.tierCode = dto.getTierCode();
+        if(dto.hasStatusMessage()) {
+            this.statusMessage = dto.getStatusMessage();
         }
 
-        if (dto.hasEmail()) {
-            this.email = dto.getEmail();
-        }
 
-        // encodedPassword는 단순 문자열로 취급, 암호화 로직이 없음
-        if (encodedPassword != null) {
-            this.password = encodedPassword;
-        }
     }
 
 }

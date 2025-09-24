@@ -17,6 +17,14 @@ public class LoginResponse {
 
     private final Long userId;
 
+    private final String userName;
+
+    private final String tierCode;
+
+    private final String imageURL;
+
+    private final String statusMessage;
+
     private final String type;
 
     private final List<String> roles;
@@ -24,4 +32,5 @@ public class LoginResponse {
     private final long issuedAt;
 
     private final long expiresAt;
+
 }
