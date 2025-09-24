@@ -70,7 +70,7 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public Map<String, Object> likePost(long postId, long userId) {
+    public PostResponseDto likePost(long postId, long userId) {
         int result = communityMapper.isLiked(Map.of("postId", postId, "userId", userId));
 
         if  (result == 0){
@@ -80,7 +80,9 @@ public class CommunityServiceImpl implements CommunityService {
             communityMapper.deleteLike(Map.of("postId", postId, "userId", userId));
         }
 
-        return communityMapper.selectLikeAndCommentCount(postId);
+        Post post = communityMapper.selectPostById(postId, userId);
+
+        return PostResponseDto.of(post);
     }
 
     @Override
