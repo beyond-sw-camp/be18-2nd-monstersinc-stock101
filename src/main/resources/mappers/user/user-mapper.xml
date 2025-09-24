@@ -13,12 +13,33 @@
         <result property="role" column="role"/>
         <result property="tierCode" column="tier_code"/>
         <result property="statusMessage" column="status_Message"/>
+        <result property="imageUrl" column="image_url"/>
+    </resultMap>
+
+    <resultMap id="userProfileResultMap" type="UserProfile">
+        <id property="userId" column="user_id"/>
+        <result property="email" column="email"/>
+        <result property="name" column="user_name"/>
+        <result property="tierCode" column="tier_code"/>
+        <result property="statusMessage" column="status_Message"/>
+        <result property="imageUrl" column="image_url"/>
     </resultMap>
 
     <insert id="insertUser" parameterType="com.monstersinc.stock101.user.model.vo.User" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO users (email,user_name,password)
         VALUES (#{email},#{name},#{password});
     </insert>
+
+    <select id="getUserProfileById" parameterType="Long" resultMap="userProfileResultMap">
+        SELECT u.user_id,
+               email,
+               user_name,
+               tier_code,
+               status_message,
+                image_url
+        FROM users u
+        WHERE u.user_id = #{userId};
+    </select>
 
     <select id="findByEmail" parameterType="string" resultMap="userResultMap">
         SELECT u.user_id,

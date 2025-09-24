@@ -8,6 +8,7 @@ import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import com.monstersinc.stock101.user.model.mapper.UserMapper;
 import com.monstersinc.stock101.user.model.vo.Role;
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -103,6 +104,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getBestPredictors() {
         return userMapper.selectBestPredictors();
+    }
+
+    @Override
+    public UserProfile getUserProfileById(Long userId) {
+        return userMapper.getUserProfileById(userId);
     }
 
 

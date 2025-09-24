@@ -1,6 +1,7 @@
 package com.monstersinc.stock101.user.model.mapper;
 
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -31,4 +32,5 @@ public interface UserMapper {
 
     List<User> selectBestPredictors();
 
+    UserProfile getUserProfileById(Long userId);
 }

@@ -3,6 +3,7 @@ package com.monstersinc.stock101.user.model.service;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
 import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface UserService {
     void softDeleteUser(Long userId);
 
     List<User> getBestPredictors();
+
+    UserProfile getUserProfileById(Long userId);
 }
