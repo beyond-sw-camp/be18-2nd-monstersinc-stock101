@@ -88,7 +88,7 @@ public class SecurityConfig {
             corsConfiguration.setAllowedOriginPatterns(List.of("*"));
 
             // CORS 요청에서 허용할 HTTP 메소드를 지정한다.
-            corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
             // 클라이언트가 요청 시 사용할 수 있는 헤더를 지정한다.
             corsConfiguration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));

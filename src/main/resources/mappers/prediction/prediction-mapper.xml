@@ -8,6 +8,8 @@
         <result property="predictedAt"  column="predicted_at"/>
         <result property="prediction"   column="prediction"/>   <!-- PredictionType (Enum name <-> VARCHAR) -->
         <result property="evaluatedAt"  column="evaluated_at"/>
+        <result property="stockName"  column="stock_name"/>
+        <result property="stockCode"  column="stock_code"/>
         <result property="actualPrice"  column="actual_price"/>
         <result property="result"       column="result"/>       <!-- PredictionResult (Enum or NULL) -->
     </resultMap>
@@ -29,15 +31,18 @@
 
     <select id="selectByUserId" parameterType="long" resultMap="predictionResultMap">
         SELECT
-            prediction_id,
-            user_id,
-            stock_id,
-            predicted_at,
-            prediction,
-            evaluated_at,
-            actual_price,
-            result
-        FROM predictions
+            p.prediction_id,
+            p.user_id,
+            p.stock_id,
+            p.predicted_at,
+            p.prediction,
+            p.evaluated_at,
+            s.name AS stock_name,
+            s.stock_code AS stock_code,
+            p.actual_price,
+            p.result
+        FROM predictions p
+        INNER JOIN stocks s ON p.stock_id = s.stock_id
         WHERE user_id = #{userId}
     </select>
 
