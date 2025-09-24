@@ -4,7 +4,9 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +28,10 @@ import com.monstersinc.stock101.restclient.stock.model.NewsPolygonResponse;
 import com.monstersinc.stock101.restclient.stock.model.PolygonResponse;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetNewsDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.GetStockCodeDto;
+import com.monstersinc.stock101.restclient.stock.model.dto.KisMinuteResp;
 import com.monstersinc.stock101.restclient.stock.model.dto.NewsIndicatorDto;
-import com.monstersinc.stock101.restclient.stock.model.dto.OverseasPrciceDetailResponse;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockFinancialInfoResDto;
+import com.monstersinc.stock101.restclient.stock.model.dto.StockPriceChartDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.StockPriceDto;
 import com.monstersinc.stock101.restclient.stock.model.dto.TokenResDto;
 import com.monstersinc.stock101.restclient.stock.model.mapper.StockRestClientMapper;
@@ -120,83 +123,6 @@ public class StockRestClientServiceImpl implements StockRestClientService {
         }
         catch (Exception e) {
                 e.printStackTrace();    
-    }
-    }
-    // WS 키 발급 
-
-    @Override
-    public String getWebSocketKey(){
-        String url = "https://openapi.koreainvestment.com:9443/oauth2/Approval"; // 실전 서버
-
-        // 요청 바디
-        Map<String, String> body = new HashMap<>();
-        body.put("grant_type", "client_credentials");
-        body.put("appkey", kiskey);
-        body.put("secretkey", kisSecret);
-
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // HttpEntity 생성
-        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
-
-        // RestTemplate 호출
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                String.class
-        );
-
-        // 결과 출력
-        String bodyStr = response.getBody();
-        System.out.println("Response: " + bodyStr);
-        try {
-            // expected JSON: { "approval_key":"...", "expires_in":3600, ... }
-            objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-            Map<String, Object> map = objectMapper.readValue(bodyStr, Map.class);
-            Object approval = map.get("approval_key");
-            Object expires = map.get("expires_in");
-            if (approval != null) {
-                String approvalKey = approval.toString();
-                long ttl = 3500L; // default
-                if (expires instanceof Number) {
-                    ttl = ((Number) expires).longValue();
-                } else if (expires != null) {
-                    try { ttl = Long.parseLong(expires.toString()); } catch (Exception ex) { }
-                }
-                // store in redis with TTL seconds
-                redisTemplate.opsForValue().set("ws:approval_key", approvalKey);
-                redisTemplate.expire("ws:approval_key", java.time.Duration.ofSeconds(Math.max(60, ttl - 60)));
-                System.out.println("Stored approval_key in Redis (ttl seconds): " + Math.max(60, ttl - 60));
-
-                return approvalKey;
-            } else {
-                System.out.println("approval_key not found in response");
-                return null;
-            }
-        } catch (Exception ex) {
-            System.out.println("Failed to parse/store approval key: " + ex.getMessage());
-            return null;
-        }
-    }
-    @Override
-    public String sendWSkey(){
-    // 1) 먼저 Redis에서 읽기
-    String wskey = redisTemplate.opsForValue().get("ws:approval_key");
-    if (wskey != null && !wskey.isEmpty()) return wskey;
-
-    // 2) 없으면 동기화 블록으로 한 번만 발급 요청하도록 함 (싱글인스턴스 환경)
-    synchronized (oauthLock) {
-        wskey = redisTemplate.opsForValue().get("oauth:access_token");
-        if (wskey != null && !wskey.isEmpty()) return wskey;
-
-        getWebSocketKey();
-
-        // 발급 후 다시 읽기
-        wskey = redisTemplate.opsForValue().get("oauth:access_token");
-        return wskey;
     }
 }
 
@@ -318,65 +244,82 @@ public class StockRestClientServiceImpl implements StockRestClientService {
             }
         return "News updated successfully.";
     }
-
-    //주식 가격 가져오기
+        //주식 가격 가져오기
     @Override
-    public String getStockprices() { 
-        
+    public List<StockPriceChartDto> getStockprices(String ticker) { 
         try{
-            List<GetStockCodeDto> allStockCodes = getAllStockCodes();
-            String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/price-detail";
-            for(GetStockCodeDto getStockCodeDto : allStockCodes) {
-                    Long id = getStockCodeDto.getStockId();
-                    String ticker = getStockCodeDto.getStockCode();
-                    System.out.println("Bearer " + getAccessTokenFromRedis());
+            
+        String url = "https://openapi.koreainvestment.com:9443/uapi/overseas-price/v1/quotations/inquire-time-itemchartprice";
+        Long id = getStockIdByCode(ticker).getStockId();
+        System.out.println("Bearer " + getAccessTokenFromRedis());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(getAccessTokenFromRedis());
         headers.add("appKey", kiskey);
         headers.add("appSecret", kisSecret);
-        headers.add("tr_id", "HHDFS00000300"); // 거래ID: 해외주식 상세현재가 조회용
+        headers.add("tr_id", "HHDFS76950200"); // 거래ID: 해외주식 상세현재가 조회용
 
         // 요청 파라미터
         Map<String, String> params = new HashMap<>();
         params.put("AUTH", "");   // 필요시
         params.put("EXCD", "NAS");
         params.put("SYMB", ticker);
+        params.put("NMIN", "1");
+        params.put("PINC", "1");
+        params.put("NEXT", "0");
+        params.put("NREC", "60");
+        params.put("FILL", "");
 
         // HttpEntity
         HttpEntity<Map<String, String>> entity = new HttpEntity<>(params, headers);
 
         // 요청 실행
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<OverseasPrciceDetailResponse> response = restTemplate.exchange(
-                url + "?EXCD=NAS&SYMB="+ticker,
+        ResponseEntity<KisMinuteResp> response = restTemplate.exchange(
+                url + "?AUTH=&EXCD=NAS&SYMB="+ticker+"&NMIN=1&PINC=1&NEXT=0&NREC=120&FILL=",
                 HttpMethod.GET,
                 entity,
-                OverseasPrciceDetailResponse.class
+                KisMinuteResp.class
         );
-            StockPriceDto StockPriceDto = new StockPriceDto();
-            
-            StockPriceDto.setClose(response.getBody().getOutput().getLast());
-            double lastClosePrice = stockRestClientMapper.getStockPriceById(id);
-            double fluctuation = decimal_round(StockPriceDto.getClose() - (lastClosePrice == 0 ? 0 : lastClosePrice));
-            String date = LocalDate.now().toString(); 
-            StockPriceDto.setId(id);
-            StockPriceDto.setSymbol(ticker);
-            StockPriceDto.setFrom(date);
-            StockPriceDto.setFluctuation(fluctuation);
-            StockPriceDto.setPK(ticker+"_"+date); // PK 설정
+        LocalDateTime dt = LocalDateTime.parse(response.getBody().getOutput2().getFirst().getKymd()+response.getBody().getOutput2().getFirst().getKhms() , DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        StockPriceDto stockPriceDto = new StockPriceDto();
 
-            // mapper는 인스턴스(stockRestClientMapper)에서 호출해야 합니다.
-            stockRestClientMapper.updateStockInfo(StockPriceDto); //stocks 테이블 업데이트
-            stockRestClientMapper.insertStockPrice(StockPriceDto); //stock_prices 테이블에 가격 이력 추가
-            System.out.println("Get Stock Price (ticker: "+ticker+")");
-
-            }
+        stockPriceDto.setId(id);
+        stockPriceDto.setSymbol(ticker);
+        stockPriceDto.setClose(Double.parseDouble(response.getBody().getOutput2().getFirst().getLast()));
+        String lastCloseRaw = redisTemplate.opsForValue().get("lastprice " + ticker);
+        double lastClosePrice = (lastCloseRaw == null || lastCloseRaw.isBlank())
+                ? 0.0
+                : Double.parseDouble(lastCloseRaw);
+        double fluctuation = decimal_round(stockPriceDto.getClose() - (lastClosePrice == 0 ? 0 : lastClosePrice));
+        stockPriceDto.setFrom(dt);
+        stockPriceDto.setFluctuation(fluctuation);
+        stockPriceDto.setPK(ticker+"_"+ dt); // PK 설정
+        List<StockPriceChartDto> chartlistChartDtos = new ArrayList<>();
+        stockRestClientMapper.updateStockInfo(stockPriceDto); //stocks 테이블 업데이트
+        List<KisMinuteResp.Bar> stickBars = response.getBody().getOutput2();
+        for(KisMinuteResp.Bar stickBar : stickBars){
+            LocalDateTime dtc = LocalDateTime.parse(stickBar.getKymd()+stickBar.getKhms() , DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+                StockPriceChartDto stockPriceChartDto = StockPriceChartDto.builder()
+                .stockId(id)
+                .stockPricePk(ticker+dtc)
+                .datetime(dtc)
+                .open(Double.parseDouble(stickBar.getOpen()))
+                .high(Double.parseDouble(stickBar.getHigh()))
+                .low(Double.parseDouble(stickBar.getLow()))
+                .last(Double.parseDouble(stickBar.getLast()))
+                .build();
+                chartlistChartDtos.add(stockPriceChartDto);
+                if(LocalTime.of(8, 57,00 ).isAfter(dtc.toLocalTime()) && LocalTime.of(9, 00,00 ).isBefore(dtc.toLocalTime())){
+                    redisTemplate.opsForValue().set("lastprice " +  ticker, stickBar.getLast());
+                }
+        }
+        return chartlistChartDtos;
         }catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            return "Stock prices updated successfully.";
     }
+
     //재무제표 가져오기
 
     // 진짜 머리뽑으면서 짠 코드 
@@ -461,6 +404,7 @@ public class StockRestClientServiceImpl implements StockRestClientService {
     public GetStockCodeDto getStockIdByCode(String ticker){
         return stockRestClientMapper.getStockIdByCode(ticker);
     }
+
     private double nz(Double val) {
         return (val == null) ? 0.0 : val;
     }
@@ -469,6 +413,21 @@ public class StockRestClientServiceImpl implements StockRestClientService {
         return Math.round(val * 1000) / 1000.0;
     }
     private final Object oauthLock = new Object();
+
+    private String normalizeTradeDate(String tradeDate) {
+        if (tradeDate == null || tradeDate.isBlank()) {
+            return LocalDate.now().toString();
+        }
+        try {
+            if (tradeDate.contains("-")) {
+                return LocalDate.parse(tradeDate).toString();
+            }
+            if (tradeDate.length() == 8) {
+                return LocalDate.parse(tradeDate, DateTimeFormatter.BASIC_ISO_DATE).toString();
+            }
+        } catch (Exception ignore) {}
+        return LocalDate.now().toString();
+    }
 
     public String getAccessTokenFromRedis() {
     // 1) 먼저 Redis에서 읽기
@@ -487,6 +446,5 @@ public class StockRestClientServiceImpl implements StockRestClientService {
         token = redisTemplate.opsForValue().get("oauth:access_token");
         return token;
     }
-
 }
 }       
