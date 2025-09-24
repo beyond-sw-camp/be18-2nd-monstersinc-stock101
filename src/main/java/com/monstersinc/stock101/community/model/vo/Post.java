@@ -24,4 +24,5 @@ public class Post {
     private int likeCount;
     private int commentCount;
     private String authorTierCode;
+    private String imageUrl;
 }

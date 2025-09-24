@@ -5,13 +5,12 @@ import com.monstersinc.stock101.common.model.dto.ItemsResponseDto;
 import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
-import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
+import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import com.monstersinc.stock101.user.model.service.UserService;
 import com.monstersinc.stock101.user.model.vo.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.xml.bind.annotation.XmlElementDecl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,14 +65,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new BaseResponseDto<>(HttpStatus.OK, data));
     }
 
-
     @PatchMapping("/me")
-    public ResponseEntity<BaseResponseDto<User>> updateMe(
+    public ResponseEntity<BaseResponseDto<User>> updateUserProfile(
             @AuthenticationPrincipal  User principal,
-            @RequestBody @Valid UserUpdateRequestDto userRequestDto) {
+            @RequestBody @Valid UpdateProfileRequestDto requestDto) {
 
         Long userId = principal.getUserId();
-        User updateUserInfo = userService.updateUserInfo(userId,userRequestDto);
+        User updateUserInfo = userService.updateProfile(userId,requestDto);
 
         return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, updateUserInfo));
 
@@ -100,6 +98,4 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(ItemsResponseDto.ofAll(HttpStatus.OK, bestPredictors));
     }
 
-
-    // @TODO 2주뒤에 삭제 => 정보 삭제 취소하는 경우  => 스프링 스케줄링 기능 사용해야함. user-001
 }
