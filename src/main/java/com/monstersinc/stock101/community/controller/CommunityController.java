@@ -81,14 +81,14 @@ public class CommunityController {
 
     // 좋아요 등록 및 취소 + 로그인 필요
     @PostMapping("/posts/{postId}/like")
-    public ResponseEntity<BaseResponseDto<Map<String, Object>>> like(
+    public ResponseEntity<BaseResponseDto<PostResponseDto>> like(
             @AuthenticationPrincipal User authenticationUser,
             @PathVariable long postId) {
 
         long userId = authenticationUser.getUserId();
-        Map<String, Object> total = communityService.likePost(postId, userId);
+        PostResponseDto post = communityService.likePost(postId, userId);
 
-        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, total));
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, post));
     }
 
     // 게시물 상세 페이지 댓글 조회
