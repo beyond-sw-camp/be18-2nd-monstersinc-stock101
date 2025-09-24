@@ -12,6 +12,7 @@
         <result property="lastLoginAt" column="last_login_at"/>
         <result property="role" column="role"/>
         <result property="tierCode" column="tier_code"/>
+        <result property="statusMessage" column="status_Message"/>
     </resultMap>
 
     <insert id="insertUser" parameterType="com.monstersinc.stock101.user.model.vo.User" useGeneratedKeys="true" keyProperty="userId">
@@ -28,10 +29,9 @@
                last_login_at,
                deleted_at,
                role,
-               t.name
+               tier_code,
+               status_message
         FROM users u
-        LEFT JOIN
-            tiers t ON u.user_id = t.tier_code
         WHERE email = #{email};
     </select>
 
@@ -44,10 +44,9 @@
                last_login_at,
                deleted_at,
                role,
-               t.name
+               tier_code,
+               status_message
         FROM users u
-        LEFT JOIN
-             tiers t ON u.user_id = t.tier_code
         WHERE u.user_id = #{userId};
     </select>
 
@@ -59,17 +58,14 @@
         SELECT COUNT(*) > 0 FROM users WHERE user_id = #{userId}
     </select>
 
-    <update id="updateUser">
+    <update id="updateUserProfile">
         UPDATE users
         SET
-            email = #{email},
             user_name = #{name},
-            password = #{password},
-            deleted_at = #{deletedAt}
+            status_message = #{statusMessage}
         WHERE
             user_id = #{userId}
     </update>
-
 
     <update id="updateEmail">
         UPDATE users

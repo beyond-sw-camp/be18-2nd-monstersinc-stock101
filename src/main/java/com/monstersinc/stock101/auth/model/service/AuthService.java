@@ -9,4 +9,6 @@ public interface AuthService {
     String createRefreshToken(Long userId);
 
     void logout(String bearerToken);
+
+    LoginResponse refreshAccessToken(String refreshToken);
 }

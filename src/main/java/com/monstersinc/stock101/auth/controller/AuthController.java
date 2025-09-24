@@ -7,11 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.monstersinc.stock101.auth.model.dto.LoginRequestDto;
 import com.monstersinc.stock101.auth.model.dto.LoginResponse;
@@ -61,6 +57,15 @@ public class AuthController {
                 .noContent()
                 .headers(headers)
                 .build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<BaseResponseDto<LoginResponse>> refresh(
+            @Parameter(hidden = true) @CookieValue(name = "refresh_token", defaultValue = "") String refreshToken) {
+
+        LoginResponse loginResponse = authService.refreshAccessToken(refreshToken);
+
+        return ResponseEntity.ok(new BaseResponseDto<>(HttpStatus.OK, loginResponse));
     }
 
 }
