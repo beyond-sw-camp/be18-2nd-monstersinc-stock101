@@ -39,9 +39,9 @@ public class PredictionController {
         Prediction prediction = dto.toPrediction(userId);
 
         // 중복 예측 방지: 같은 종목(stockId)에 대해 미채점(result IS NULL) 예측이 존재하면 차단
-//        if (predictionService.existsPendingPrediction(userId, dto.getStockId())) {
-//            throw new GlobalException(GlobalExceptionMessage.DUPLICATE_PREDICTION);
-//        }
+        if (predictionService.existsPendingPrediction(userId, dto.getStockId())) {
+            throw new GlobalException(GlobalExceptionMessage.DUPLICATE_PREDICTION);
+        }
 
         // INSERT (generated key -> entity.predictionId 세팅)
         predictionService.insertPrediction(prediction);
