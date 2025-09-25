@@ -4,6 +4,7 @@ import com.monstersinc.stock101.community.model.dto.CommentRequestDto;
 import com.monstersinc.stock101.community.model.dto.CommentResponseDto;
 import com.monstersinc.stock101.community.model.dto.PostRequestDto;
 import com.monstersinc.stock101.community.model.dto.PostResponseDto;
+import com.monstersinc.stock101.community.model.vo.Post;
 import jakarta.annotation.Nullable;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface CommunityService {
 
     void delete(long postId);
 
-    Map<String, Object> likePost(long postId, long userId);
+    PostResponseDto likePost(long postId, long userId);
 
     List<CommentResponseDto> getCommentListByPostId(long postId);
 

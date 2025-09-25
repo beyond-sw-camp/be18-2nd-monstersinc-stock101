@@ -39,6 +39,7 @@
         <result property="likeCount"   column="likeCount"    />
         <result property="commentCount" column="commentCount" />
         <result property="authorTierCode" column="authorTierCode"/>
+        <result property="imageUrl" column="imageUrl"/>
     </resultMap>
 
     <resultMap id="commentResultMap" type="Comment">
@@ -52,7 +53,7 @@
         <result property="parentCommentId" column="parent_comment_id"/>
         <result property="authorTierCode" column="authorTierCode"/>
         <result property="totalCommentCount" column="totalCommentCount"/>
-
+        <result property="imageUrl" column="imageUrl"/>
     </resultMap>
 
     <insert id="insertPost"
@@ -72,6 +73,7 @@
         -- 작성자 등급 / 이름
         u.tier_code AS authorTierCode,
         u.user_name  AS userName,
+        u.image_url AS imageUrl,
 
         <!-- 내가 좋아요 눌렀는지 (로그인 안 했으면 0) -->
         <choose>
@@ -119,6 +121,7 @@
         -- 작성자 등급 / 이름
         u.tier_code AS authorTierCode,
         u.user_name  AS userName,
+        u.image_url AS imageUrl,
 
         <!-- 내가 좋아요 눌렀는지 -->
         <choose>
@@ -197,7 +200,9 @@
     <select id="selectCommentListByPostId" parameterType="long" resultMap="commentResultMap">
         SELECT t.*,
             u.tier_code AS authorTierCode,
-            u.user_name  AS userName
+            u.user_name  AS userName,
+            u.image_url AS imageUrl
+
         FROM (
             <include refid="selectCommentSql"/>
             WHERE post_id = #{postId}
@@ -237,6 +242,8 @@
             t.*,
             u.tier_code AS authorTierCode,
             u.user_name  AS userName,
+            u.image_url AS imageUrl,
+
             (
                 SELECT COUNT(*)
                 FROM comments c
@@ -268,6 +275,7 @@
         -- 작성자 정보
         u.tier_code  AS authorTierCode,
         u.user_name  AS userName,
+        u.image_url AS imageUrl,
 
         <!-- 내가 좋아요 눌렀는지 -->
         <choose>

@@ -1,5 +1,7 @@
 package com.monstersinc.stock101.indicator.model.service;
 
+import org.springframework.stereotype.Service;
+
 import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.indicator.model.mapper.IndicatorMapper;
@@ -7,10 +9,8 @@ import com.monstersinc.stock101.indicator.model.vo.AnalystIndicator;
 import com.monstersinc.stock101.indicator.model.vo.FinancialIndicator;
 import com.monstersinc.stock101.indicator.model.vo.IndividualIndicator;
 import com.monstersinc.stock101.indicator.model.vo.NewsIndicator;
-import com.monstersinc.stock101.stock.model.mapper.StockMapper;
-import com.monstersinc.stock101.stock.model.service.StockService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

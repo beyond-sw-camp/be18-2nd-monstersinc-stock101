@@ -1,5 +1,7 @@
 package com.monstersinc.stock101.restclient.stock.model.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor @NoArgsConstructor
 public class StockPriceDto { 
     private Long id;
-    private String from;
+    private LocalDateTime from;
     private double fluctuation;
     private String symbol;
     private double close;

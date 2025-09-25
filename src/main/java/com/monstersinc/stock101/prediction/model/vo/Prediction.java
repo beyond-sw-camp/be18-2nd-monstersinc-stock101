@@ -19,6 +19,8 @@ public class Prediction {
     private PredictionType prediction;      // UP/DOWN
     private LocalDateTime evaluatedAt;      // nullable
     private Double actualPrice;             // nullable
+    private String stockCode;
+    private String stockName;
     private PredictionResult result;        // SUCCESS/FAILURE or null
 }
 

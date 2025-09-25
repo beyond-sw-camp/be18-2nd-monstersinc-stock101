@@ -4,22 +4,20 @@ import com.monstersinc.stock101.common.model.vo.CommonConstants;
 import com.monstersinc.stock101.exception.GlobalException;
 import com.monstersinc.stock101.exception.message.GlobalExceptionMessage;
 import com.monstersinc.stock101.user.model.dto.UserRegisterRequestDto;
-import com.monstersinc.stock101.user.model.dto.UserUpdateRequestDto;
+import com.monstersinc.stock101.user.model.dto.UpdateProfileRequestDto;
 import com.monstersinc.stock101.user.model.mapper.UserMapper;
 import com.monstersinc.stock101.user.model.vo.Role;
 import com.monstersinc.stock101.user.model.vo.User;
+import com.monstersinc.stock101.user.model.vo.UserProfile;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -65,25 +63,13 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User updateUserInfo(Long userId, UserUpdateRequestDto userUpdateRequestDto) {
+    public User updateProfile(Long userId, UpdateProfileRequestDto updateProfileRequestDto) {
 
         User user = getUserByUserId(userId);
 
-        // 변경 이메일 중복 체크
-        if (userUpdateRequestDto.hasEmail() && !userUpdateRequestDto.getEmail().equalsIgnoreCase(user.getEmail())) {
-            if (userMapper.existsByEmail(userUpdateRequestDto.getEmail())) {
-                throw new GlobalException(GlobalExceptionMessage.DUPLICATE_EMAIL);
-            }
-        }
+        user.update(updateProfileRequestDto);
 
-        String encodedPassword = null;
-        if (userUpdateRequestDto.hasPassword()) {
-            encodedPassword = passwordEncoder.encode(userUpdateRequestDto.getPassword());
-        }
-
-        user.update(userUpdateRequestDto, encodedPassword);
-
-        userMapper.updateUser(user);
+        userMapper.updateUserProfile(user);
         return user;
     }
 
@@ -112,12 +98,17 @@ public class UserServiceImpl implements UserService {
         User user = getUserByUserId(userId);
         user.setDeletedAt(LocalDateTime.now());
 
-        userMapper.updateUser(user);
+        userMapper.updateUserProfile(user);
     }
 
     @Override
     public List<User> getBestPredictors() {
         return userMapper.selectBestPredictors();
+    }
+
+    @Override
+    public UserProfile getUserProfileById(Long userId) {
+        return userMapper.getUserProfileById(userId);
     }
 
 
