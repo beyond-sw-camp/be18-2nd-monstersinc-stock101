@@ -71,7 +71,7 @@ Stock101은 S&P500 상위 10개 종목을 중심으로 기업 정보 + 투자자
 - 관리자 컨택: 신고/문의 기능 제공
 - 사용자 등급/평판 시스템: 활동 기반 등급 부여 및 뱃지 시스템
 
-## 🔧 시스템 아키텍쳐
+## 🔧시스템 아키텍쳐
 <img width="1230" height="589" alt="image" src="https://github.com/user-attachments/assets/6e3f05f9-6da1-4aca-a291-7c222b48f2f7" />
 
 
