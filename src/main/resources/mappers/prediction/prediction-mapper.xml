@@ -39,6 +39,7 @@
             result
         FROM predictions
         WHERE user_id = #{userId}
+        ORDER BY predicted_at DESC
     </select>
 
     <select id="existsPendingPrediction" resultType="boolean">
