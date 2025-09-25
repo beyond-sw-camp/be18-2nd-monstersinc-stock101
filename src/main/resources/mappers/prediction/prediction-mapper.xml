@@ -44,6 +44,7 @@
         FROM predictions p
         INNER JOIN stocks s ON p.stock_id = s.stock_id
         WHERE user_id = #{userId}
+        ORDER BY predicted_at DESC
     </select>
 
     <select id="existsPendingPrediction" resultType="boolean">
