@@ -71,13 +71,78 @@ Stock101은 S&P500 상위 10개 종목을 중심으로 기업 정보 + 투자자
 - 관리자 컨택: 신고/문의 기능 제공
 - 사용자 등급/평판 시스템: 활동 기반 등급 부여 및 뱃지 시스템
 
+## 시연
+<details><summary><strong>Overview</strong></summary>
+  
+<details><summary>Stock101 빠르게 살펴보기</summary>
+<img src="https://github.com/user-attachments/assets/0ed82ffa-ab9b-4b2c-8a46-9bc9b6d37550" alt="살펴보기" />
+</details>
+</details>
+
+
+<details><summary><strong>로그인/회원가입</strong></summary>
+  
+<details><summary>회원가입</summary>
+<img src="https://github.com/user-attachments/assets/b3ee4078-2de2-4838-8de5-02fc31d6daf6" alt="회원가입" />
+</details>
+
+<details><summary>로그인</summary>
+<img src="https://github.com/user-attachments/assets/e11f9460-88c0-4cfb-bfd7-1c9670832602" alt="로그인" />
+</details>
+</details>
+
+<details><summary><strong>내 정보</strong></summary>
+  
+<details><summary>내 정보 조회 및 수정</summary>
+<img src="https://github.com/user-attachments/assets/10262347-8098-44c6-abae-ab0f3e17cbd2" alt="내 정보" />
+</details>
+
+</details>
+<details><summary><strong>주식 상세</strong></summary>
+  
+<details><summary>주식 상세 화면</summary>
+<img src="https://github.com/user-attachments/assets/e287bcd5-9fc4-4eb7-a719-f2b6b9ccc055" alt="주식 상세 화면" />
+</details>
+</details>
+
+</details>
+<details><summary><strong>커뮤니티</strong></summary>
+  
+<details><summary>게시물 등록</summary>
+<img src="https://github.com/user-attachments/assets/10178f01-3bf4-4b4c-b31b-5b9969fe55f8" alt="게시물 등록" />
+</details>
+
+
+<details><summary>게시물 좋아요</summary>
+<img src="https://github.com/user-attachments/assets/6ee028e4-9408-4166-9022-0a220d5b5903" alt="게시물 좋아요" />
+</details>
+
+<details><summary>게시물 댓글 등록 및 대댓글 등록</summary>
+<img src="https://github.com/user-attachments/assets/5230a957-357a-43d8-bf4c-e4b5c4fd5b7d" alt="게시물 댓글 등록 및 대댓글 등록" />
+</details>
+
+</details>
+<details><summary><strong>예측</strong></summary>
+  
+<details><summary>예측 등록</summary>
+<img src="" alt="예측 등록" />
+</details>
+
+
+<details><summary>다른 사용자 예측 조회</summary>
+<img src="" alt="다른 사용자 예측 조회" />
+</details>
+
+</details>
+
+
+
 ## 🔧시스템 아키텍쳐
 <img width="1230" height="589" alt="image" src="https://github.com/user-attachments/assets/6e3f05f9-6da1-4aca-a291-7c222b48f2f7" />
 
 
 ## [📋요구사항 명세서](https://docs.google.com/spreadsheets/d/14wwJn_T3o99kF_oEq8uZ0xYGWGwoTiGmOdv44CbQwt0/edit?gid=434890356#gid=434890356)
 <img width="1428" height="819" alt="image" src="https://github.com/user-attachments/assets/aaf346ab-7e0c-4373-b899-f4df031fd0d0" />
-
 
 ## [🪧ERD](https://www.erdcloud.com/d/zo7c3EtFTFLD6g6gD)
 <img width="2808" height="1647" alt="Stock101-3" src="https://github.com/user-attachments/assets/c13278dc-4556-4397-8f58-511caae2f100" />
@@ -93,13 +158,13 @@ Stock101은 S&P500 상위 10개 종목을 중심으로 기업 정보 + 투자자
 ### 회고록
 ---
 #### 🦄윤석현
-> 
+> 웹을 처음 개발해보았는데 그간 BaaS로 쉽게 개발을 했었는데 일일이 API를 개발해야 한다는 사실에 조금 충격받았지만 놀랍도록 빠르게 익숙해져서 간단한 API는 금방 구현을 할 수 있게 되었다. 깃허브를 통한 협업은 상당히 어려웠지만 스태시, 체리픽에 익숙해진 이후 브랜치관리나 커밋 풀 컨플릭트 등을 능숙하게 해결할 수 있게 되어 개인 프로젝트도 로컬로 관리했었는데 이젠 깃허브를 사용해서 관리할 수 있게 되었다. 많이 배우고 성장해서 기쁘다.
 
 #### 🐣손혜원
 > 처음 프론트와 백을 구현하는 의미있는 프로젝트였습니다. intelliJ와 VSCode의 git 기능을 활용하면서 IDE와 Git 모두 익숙해질 수 있었던 기회였습니다. 개인 notion에 프로젝트 관리 페이지를 만들어 issue와 솔루션을 기록했고 협업과 자기 피드백에 도움이 되었습니다. 
 
 #### 🐢박진우
-> 
+> 구현이 참 의미있었다. 프론트 백엔드를 통해 내가 하고싶은걸 얻었다. 백엔드와 프론트에서도 좋은 구조를 고민했는데 아직 더 할게 많이 남았다고 생각한다. 이제는 기능만 개발하는 사람이 아니라 성장한 사람이 되고싶다. 
 
 #### 🦆조원석
-> 
+> 계획한 것을 다 담지못하여 아쉬움이 크긴하지만 좋은사람들과 즐겁게 작업하게되어 좋기도 하다. 구현하는 과정에서 생각지 못한 문제를 의견을 조율해가며 해결하는 과정도 뜻깊었고 Spring을 꽤 능숙하게 사용할 수 있게된것같아 의미있는 프로젝트였다.
