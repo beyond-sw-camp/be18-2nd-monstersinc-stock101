@@ -125,12 +125,11 @@ Stock101은 S&P500 상위 10개 종목을 중심으로 기업 정보 + 투자자
 <details><summary><strong>예측</strong></summary>
   
 <details><summary>예측 등록</summary>
-<img src="" alt="예측 등록" />
+<img src="https://github.com/user-attachments/assets/91cb5af2-415c-4eb5-a64a-7a0745eb01b3" alt="예측 등록" />
 </details>
 
-
 <details><summary>다른 사용자 예측 조회</summary>
-<img src="" alt="다른 사용자 예측 조회" />
+<img src="https://github.com/user-attachments/assets/26d9952f-9e61-4b8a-8b52-46f2a1ddfda9" alt="다른 사용자 예측 조회" />
 </details>
 
 </details>
