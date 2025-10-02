@@ -47,18 +47,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts/{postId}/like").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/board/posts/{postId}/comments").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/board/me").authenticated()
-
-                        // 3) 조회는 공개
-                        .requestMatchers(HttpMethod.GET, "/api/v1/board/posts/**").permitAll()
-
-                        // 4) 뉴스 조회, 클릭카운트 업데이트는 공개
-                        .requestMatchers(HttpMethod.POST, "/api/v1/news/**").permitAll()
-
-                        // 5) 주식은 조회만 있으므로 공개
-                        .requestMatchers(HttpMethod.POST, "/api/v1/stock/**").permitAll()
-
-                        // 6) 다른 사람의 예측은 공개
-                        .requestMatchers(HttpMethod.GET, "/api/v1/prediction/user/{userId}").permitAll()
                         // 나머지 요청은 일단 모두 허용.
                         .anyRequest().permitAll()
                 )
