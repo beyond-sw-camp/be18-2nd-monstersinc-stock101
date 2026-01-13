@@ -44,10 +44,8 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          # 하드코딩 대신 env 섹션을 통해 환경 변수 주입
           envs: DOCKERHUB_ID
           script: |
-            # 윈도우 환경에서 안정적인 실행을 위해 cmd /c 사용
             cmd /c "cd /d C:\project && (
               echo --- [1. Environment Check] ---
               echo DOCKERHUB_ID is %DOCKERHUB_ID%
