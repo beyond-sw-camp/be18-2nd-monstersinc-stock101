@@ -38,6 +38,11 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Generate Docker Auth
+        id: docker-auth
+        run: |
+          echo "auth=$(echo -n '${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}' | base64 -w 0)" >> $GITHUB_OUTPUT
+      
       - name: SSH Remote Commands
         uses: appleboy/ssh-action@master
         with:
@@ -45,4 +50,18 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            powershell -Command "cd C:\project; if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }; New-Item -ItemType Directory -Path .docker_temp -Force | Out-Null; New-Item -ItemType Directory -Path .docker_temp\.docker -Force | Out-Null; `$config = @{auths = @{\"https://index.docker.io/v1/\" = @{auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes('${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}'))}}} | ConvertTo-Json -Depth 10; Set-Content -Path .docker_temp\.docker\config.json -Value `$config -Encoding UTF8; Write-Host '--- [1. PULL] ---'; `$env:DOCKER_CONFIG='C:\project\.docker_temp\.docker'; docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [2. STOP OLD] ---'; docker stop stock-backend 2>`$null; docker rm stock-backend 2>`$null; Write-Host '--- [3. DEPLOY] ---'; docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [4. CLEANUP] ---'; if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }; docker ps"
+            cd C:\project
+            if exist .dockercfg rmdir /s /q .dockercfg
+            mkdir .dockercfg
+            echo {"auths":{"https://index.docker.io/v1/":{"auth":"${{ steps.docker-auth.outputs.auth }}"}}} > .dockercfg\config.json
+            set DOCKER_CONFIG=C:\project\.dockercfg
+            echo --- [1. PULL] ---
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+            echo --- [2. STOP OLD] ---
+            docker stop stock-backend 2>nul
+            docker rm stock-backend 2>nul
+            echo --- [3. DEPLOY] ---
+            docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+            echo --- [4. CLEANUP] ---
+            rmdir /s /q .dockercfg
+            docker ps
