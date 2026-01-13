@@ -45,4 +45,20 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            powershell -Command "$env:DOCKER_CONFIG='C:\project\.docker_temp'; cd C:\project; if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }; New-Item -ItemType Directory -Path .docker_temp -Force | Out-Null; Write-Host '--- [1. LOGIN] ---'; echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin; Write-Host '--- [2. PULL] ---'; docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [3. STOP OLD] ---'; docker-compose stop stock-backend; docker-compose rm -f stock-backend; Write-Host '--- [4. DEPLOY] ---'; docker-compose up -d stock-backend; Write-Host '--- [5. CLEANUP] ---'; if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }; docker ps"
+            powershell -Command "cd C:\project; @'
+            `$env:DOCKER_CONFIG='C:\project\.docker_temp'
+            if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }
+            New-Item -ItemType Directory -Path .docker_temp -Force | Out-Null
+            Write-Host '--- [1. LOGIN] ---'
+            echo '${{ secrets.DOCKERHUB_TOKEN }}' | docker login -u '${{ secrets.DOCKERHUB_USERNAME }}' --password-stdin
+            Write-Host '--- [2. PULL] ---'
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+            Write-Host '--- [3. STOP OLD] ---'
+            docker-compose stop stock-backend
+            docker-compose rm -f stock-backend
+            Write-Host '--- [4. DEPLOY] ---'
+            docker-compose up -d stock-backend
+            Write-Host '--- [5. CLEANUP] ---'
+            if (Test-Path .docker_temp) { Remove-Item -Recurse -Force .docker_temp }
+            docker ps
+            '@ | Out-File -FilePath deploy.ps1 -Encoding UTF8; .\deploy.ps1; Remove-Item deploy.ps1"
