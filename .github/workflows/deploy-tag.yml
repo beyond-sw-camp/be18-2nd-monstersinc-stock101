@@ -44,20 +44,29 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          envs: DOCKERHUB_ID
           script: |
-            cmd /c "cd /d C:\project && (
-              echo --- [1. Environment Check] ---
-              echo DOCKERHUB_ID is %DOCKERHUB_ID%
-              
-              echo --- [2. Docker Compose Pull] ---
-              docker-compose pull stock-backend
-              
-              echo --- [3. Docker Compose Up] ---
-              docker-compose up -d --force-recreate stock-backend
-              
-              echo --- [4. Final Process Check] ---
-              docker ps --filter name=stock-backend
-            )"
-        env:
-          DOCKERHUB_ID: ${{ secrets.DOCKERHUB_USERNAME }}
+            @echo off
+            :: 1. 윈도우용 변수 설정 (Secrets 직접 주입)
+            set "DOCKERHUB_ID=${{ secrets.DOCKERHUB_USERNAME }}"
+            
+            :: 2. 프로젝트 경로 이동 (/d 옵션 필수)
+            cd /d "C:\project"
+            
+            echo --- [1. Check Environment] ---
+            echo Working Directory: %cd%
+            echo Docker Hub ID: %DOCKERHUB_ID%
+            
+            echo --- [2. Docker Compose Pull] ---
+            :: 이미지 최신화
+            docker-compose pull stock-backend
+            
+            echo --- [3. Docker Compose Up] ---
+            :: 컨테이너 강제 재생성 (--force-recreate)
+            docker-compose up -d --force-recreate stock-backend
+            
+            echo --- [4. Clean Up] ---
+            :: 미사용 이미지 정리
+            docker image prune -f
+            
+            echo --- [5. Deployment Result] ---
+            docker ps --filter name=stock-backend
