@@ -38,11 +38,6 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Generate Docker Auth
-        id: docker-auth
-        run: |
-          echo "auth=$(echo -n '${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_TOKEN }}' | base64 -w 0)" >> $GITHUB_OUTPUT
-      
       - name: SSH Remote Commands
         uses: appleboy/ssh-action@master
         with:
@@ -51,10 +46,6 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
             cd C:\project
-            if exist .dockercfg rmdir /s /q .dockercfg
-            mkdir .dockercfg
-            echo {"auths":{"https://index.docker.io/v1/":{"auth":"${{ steps.docker-auth.outputs.auth }}"}}} > .dockercfg\config.json
-            set DOCKER_CONFIG=C:\project\.dockercfg
             echo --- [1. PULL] ---
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
             echo --- [2. STOP OLD] ---
@@ -62,6 +53,5 @@ jobs:
             docker rm stock-backend 2>nul
             echo --- [3. DEPLOY] ---
             docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
-            echo --- [4. CLEANUP] ---
-            rmdir /s /q .dockercfg
+            echo --- [4. CHECK] ---
             docker ps
