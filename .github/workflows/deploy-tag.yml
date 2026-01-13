@@ -45,4 +45,4 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            cmd /c "cd /d C:\project && echo --- START --- && docker-compose pull stock-backend && docker-compose up -d --force-recreate stock-backend && docker ps"
+            cmd /c "cd /d C:\project && echo --- START --- && docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} && docker-compose pull stock-backend && docker-compose up -d --force-recreate stock-backend && docker ps"
