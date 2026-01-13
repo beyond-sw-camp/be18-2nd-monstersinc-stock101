@@ -46,6 +46,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
             cd "C:\Users\pjw14\OneDrive\바탕 화면\project"
+            docker-compose down
             docker-compose pull stock-backend
             docker-compose up -d stock-backend
-            docker image prune -f
+            docker ps
