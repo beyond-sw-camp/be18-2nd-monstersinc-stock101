@@ -45,8 +45,22 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            cd "C:\Users\pjw14\OneDrive\바탕 화면\project"
-            docker-compose down
-            docker-compose pull stock-backend
-            docker-compose up -d stock-backend
-            docker ps
+            cd "C:\project"
+            echo "--- [2. Docker Hub 로그인 상태 확인] ---"
+            docker system info | grep Username || echo "로그인 정보가 없습니다."
+
+            echo "--- [3. 이미지 Pull 시도 및 상세 로그] ---"
+            # 변수를 직접 할당하여 pull 시도
+            export DOCKERHUB_ID=pjw1480
+            docker-compose pull stock-backend 2>&1
+
+            echo "--- [4. 컨테이너 상태 확인] ---"
+            # 현재 실행 중인 컨테이너 확인
+            docker ps -a --filter "name=stock-backend"
+
+            echo "--- [5. 서비스 재시작 및 에러 로그 기록] ---"
+            # 강제 재시작 시 발생하는 모든 표준 에러(2)를 출력함
+            docker-compose up -d --force-recreate stock-backend 2>&1
+
+            echo "--- [6. 최종 실행 결과] ---"
+            docker ps --filter "name=stock-backend"
