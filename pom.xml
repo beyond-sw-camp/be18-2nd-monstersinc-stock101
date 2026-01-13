@@ -56,6 +56,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- dotenv-java for loading .env files -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
         <!-- Redis 연동을 위한 의존성 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -141,7 +148,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <fork>true</fork>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
