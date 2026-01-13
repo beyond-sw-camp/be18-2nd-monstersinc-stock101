@@ -44,6 +44,5 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          script_stop: true
           script: |
-            cmd /c "cd /d C:\project && set DOCKERHUB_ID=${{ secrets.DOCKERHUB_USERNAME }} && echo --- START DEPLOY --- && docker-compose pull stock-backend && docker-compose up -d --force-recreate stock-backend && docker ps"
+            cmd /c "cd /d C:\project && echo --- START --- && docker-compose pull stock-backend && docker-compose up -d --force-recreate stock-backend && docker ps"
