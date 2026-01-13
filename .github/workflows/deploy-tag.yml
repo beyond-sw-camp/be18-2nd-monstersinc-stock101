@@ -45,13 +45,4 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            cd C:\project
-            echo --- [1. PULL] ---
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
-            echo --- [2. STOP OLD] ---
-            docker stop stock-backend 2>nul
-            docker rm stock-backend 2>nul
-            echo --- [3. DEPLOY] ---
-            docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
-            echo --- [4. CHECK] ---
-            docker ps
+            powershell -Command "Write-Host '--- [1. PULL] ---'; docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [2. STOP OLD] ---'; docker stop stock-backend; docker rm stock-backend; Write-Host '--- [3. DEPLOY] ---'; docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [4. CHECK] ---'; docker ps"
