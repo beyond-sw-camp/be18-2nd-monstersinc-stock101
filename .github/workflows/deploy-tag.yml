@@ -19,7 +19,11 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: |
+          echo "=== Starting Maven Build ==="
+          mvn clean package -DskipTests
+          echo "=== Maven Build Completed ==="
+          ls -lh target/*.jar
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -32,7 +36,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:${{ github.ref_name }}
+      
+      - name: Verify Image Push
+        run: |
+          echo "=== Image pushed successfully ==="
+          echo "Tag: latest"
+          echo "Tag: ${{ github.ref_name }}"
 
   deploy:
     needs: build-and-push
@@ -44,17 +56,33 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          script_stop: true
           debug: true
           script: |
-            cd C:/project
-            echo "=== [1. PULL LATEST IMAGE] ==="
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
-            echo "=== [2. DEPLOY WITH DOCKER COMPOSE] ==="
-            docker compose up -d stock-backend
-            echo "=== [3. CLEANUP OLD IMAGES] ==="
-            docker image prune -f
-            echo "=== [4. CHECK RUNNING CONTAINERS] ==="
-            docker ps --filter "name=stock-backend"
-            echo "=== [5. CHECK CONTAINER LOGS] ==="
-            docker logs --tail 30 stock-backend
+            powershell -NoProfile -Command "
+              Set-Location C:\project
+              Write-Host '=== [1. PULL LATEST IMAGE] ==='
+              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+              if (\$LASTEXITCODE -ne 0) { exit 1 }
+              
+              Write-Host '=== [2. STOP OLD CONTAINER] ==='
+              docker compose stop stock-backend
+              docker compose rm -f stock-backend
+              
+              Write-Host '=== [3. DEPLOY WITH DOCKER COMPOSE] ==='
+              docker compose up -d stock-backend
+              if (\$LASTEXITCODE -ne 0) { exit 1 }
+              
+              Write-Host '=== [4. CLEANUP OLD IMAGES] ==='
+              docker image prune -f
+              
+              Write-Host '=== [5. WAIT FOR CONTAINER STARTUP] ==='
+              Start-Sleep -Seconds 10
+              
+              Write-Host '=== [6. CHECK RUNNING CONTAINERS] ==='
+              docker ps --filter name=stock-backend
+              
+              Write-Host '=== [7. CHECK CONTAINER LOGS] ==='
+              docker logs --tail 50 stock-backend
+              
+              Write-Host '=== DEPLOY COMPLETED ==='
+            "
