@@ -46,19 +46,22 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
             powershell -Command "
-            Write-Host '--- [1. PULL] ---';
+            Write-Host '--- [1. MOVE TO PROJECT] ---';
+            cd C:/project;
+            
+            Write-Host '--- [2. PULL LATEST IMAGE] ---';
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest;
             
-            Write-Host '--- [2. MOVE & DEPLOY] ---';
-            # 1. docker-compose.yml이 있는 폴더로 이동 (경로 확인 필수)
-            cd C:/project/;
-            
-            # 2. 특정 서비스만 업데이트해서 띄우기
+            Write-Host '--- [3. DEPLOY WITH DOCKER-COMPOSE] ---';
+            # docker-compose가 .env 파일을 자동으로 로드함
             docker-compose up -d stock-backend;
             
-            Write-Host '--- [3. CLEANUP] ---';
+            Write-Host '--- [4. CLEANUP] ---';
             # 안 쓰는 구버전 이미지 삭제
             docker image prune -f;
             
-            Write-Host '--- [4. CHECK] ---';
-            docker ps"
+            Write-Host '--- [5. CHECK RUNNING CONTAINERS] ---';
+            docker ps --filter 'name=stock-backend';
+            
+            Write-Host '--- [6. CHECK LOGS] ---';
+            docker logs --tail 50 stock-backend"
