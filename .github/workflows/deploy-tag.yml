@@ -50,39 +50,17 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: SSH Remote Commands
+      - name: Deploy to Windows Server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
-          debug: true
+          command_timeout: 10m
           script: |
-            powershell -NoProfile -Command "
-              Set-Location C:\project
-              Write-Host '=== [1. PULL LATEST IMAGE] ==='
-              docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
-              if (\$LASTEXITCODE -ne 0) { exit 1 }
-              
-              Write-Host '=== [2. STOP OLD CONTAINER] ==='
-              docker compose stop stock-backend
-              docker compose rm -f stock-backend
-              
-              Write-Host '=== [3. DEPLOY WITH DOCKER COMPOSE] ==='
-              docker compose up -d stock-backend
-              if (\$LASTEXITCODE -ne 0) { exit 1 }
-              
-              Write-Host '=== [4. CLEANUP OLD IMAGES] ==='
-              docker image prune -f
-              
-              Write-Host '=== [5. WAIT FOR CONTAINER STARTUP] ==='
-              Start-Sleep -Seconds 10
-              
-              Write-Host '=== [6. CHECK RUNNING CONTAINERS] ==='
-              docker ps --filter name=stock-backend
-              
-              Write-Host '=== [7. CHECK CONTAINER LOGS] ==='
-              docker logs --tail 50 stock-backend
-              
-              Write-Host '=== DEPLOY COMPLETED ==='
-            "
+            cd C:\project
+            docker compose pull stock-backend
+            docker compose up -d --force-recreate stock-backend
+            timeout /t 15 /nobreak
+            docker ps --filter name=stock-backend
+            docker logs --tail 30 stock-backend
