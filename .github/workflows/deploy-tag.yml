@@ -45,4 +45,20 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            powershell -Command "Write-Host '--- [1. PULL] ---'; docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [2. STOP OLD] ---'; docker stop stock-backend; docker rm stock-backend; Write-Host '--- [3. DEPLOY] ---'; docker run -d --name stock-backend --network project_default -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest; Write-Host '--- [4. CHECK] ---'; docker ps"
+            powershell -Command "
+            Write-Host '--- [1. PULL] ---';
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest;
+            
+            Write-Host '--- [2. MOVE & DEPLOY] ---';
+            # 1. docker-compose.yml이 있는 폴더로 이동 (경로 확인 필수)
+            cd C:/project/;
+            
+            # 2. 특정 서비스만 업데이트해서 띄우기
+            docker-compose up -d stock-backend;
+            
+            Write-Host '--- [3. CLEANUP] ---';
+            # 안 쓰는 구버전 이미지 삭제
+            docker image prune -f;
+            
+            Write-Host '--- [4. CHECK] ---';
+            docker ps"
