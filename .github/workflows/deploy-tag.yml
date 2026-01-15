@@ -44,24 +44,17 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
+          script_stop: true
+          debug: true
           script: |
-            powershell -Command "
-            Write-Host '--- [1. MOVE TO PROJECT] ---';
-            cd C:/project;
-            
-            Write-Host '--- [2. PULL LATEST IMAGE] ---';
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest;
-            
-            Write-Host '--- [3. DEPLOY WITH DOCKER-COMPOSE] ---';
-            # docker-compose가 .env 파일을 자동으로 로드함
-            docker-compose up -d stock-backend;
-            
-            Write-Host '--- [4. CLEANUP] ---';
-            # 안 쓰는 구버전 이미지 삭제
-            docker image prune -f;
-            
-            Write-Host '--- [5. CHECK RUNNING CONTAINERS] ---';
-            docker ps --filter 'name=stock-backend';
-            
-            Write-Host '--- [6. CHECK LOGS] ---';
-            docker logs --tail 50 stock-backend"
+            cd C:/project
+            echo "=== [1. PULL LATEST IMAGE] ==="
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/stock-backend:latest
+            echo "=== [2. DEPLOY WITH DOCKER COMPOSE] ==="
+            docker compose up -d stock-backend
+            echo "=== [3. CLEANUP OLD IMAGES] ==="
+            docker image prune -f
+            echo "=== [4. CHECK RUNNING CONTAINERS] ==="
+            docker ps --filter "name=stock-backend"
+            echo "=== [5. CHECK CONTAINER LOGS] ==="
+            docker logs --tail 30 stock-backend
